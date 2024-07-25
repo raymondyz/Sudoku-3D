@@ -457,6 +457,16 @@ def clickUpdateSelectedCell2D(app, mousePos: Vector3D) -> None:
     app.selectedCell = Vector3D(selectedX, app.selectedCell.y, selectedY)
   elif app.planeDirection == 2:
     app.selectedCell = Vector3D(selectedX, selectedY, app.selectedCell.z)
+  
+# Called by game2D_onKeyPress()
+# Enters digit into cell value if valid
+def enterCellValue2D(app, key: str) -> bool:
+  if not key.isdigit():
+    return False
+  if not 1 <= int(key) <= app.BOARD_SIZE:
+    return False
+  return app.board.set(app.selectedCell, int(key))
+    
 
 
 # ================================================
@@ -495,6 +505,8 @@ def game2D_onKeyPress(app, key):
   if key in ['v']:
     app.isFlatView = False
     setActiveScreen('game3D')
+  
+  enterCellValue2D(app, key)
 
 def game2D_onMousePress(app, mouseX, mouseY):
   clickUpdateSelectedCell2D(app, Vector3D(mouseX, mouseY))
