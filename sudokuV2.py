@@ -22,10 +22,10 @@ FUTURE:
 
 from cmu_graphics import *
 import math
-import numpy as np
 
 from graphics import Vector3D
-from ui import Button
+
+from splashScreen import *
 
 
 class Cell:
@@ -33,7 +33,8 @@ class Cell:
     self.value: int = value
     self.isLocked: bool = False
     self.isLegal: bool = True
-    self.markings: list[int] = []
+    self.markings: set[int] = set() # 'possible values' displayed, may be changed by player
+    self.legals: set[int] = set()   # correct possible values
   
   def __repr__(self) -> str:
     return str(self.value)
@@ -60,7 +61,11 @@ class Sudoku3D:
       for j in range(size):
         list1D = []
         for k in range(size):
-          cell = Cell(100*i + 10*j + k)
+          # cell = Cell(100*i + 10*j + k)
+          cell = Cell()
+          if (i+j+k) % 3 == 0:
+            cell = Cell((i+j+k) % 10)
+          cell.markings = {i, j, k}
           list1D.append(cell)
         list2D.append(list1D)
       list3D.append(list2D)
@@ -172,7 +177,16 @@ def drawCellValue(app, cellCenterDisp3D: Vector3D, value: str = '') -> None:
   drawLabel(value, cellCenterDisp3D.x, cellCenterDisp3D.y)
 
 def drawCell(app, index3D: Vector3D, dispCenter3D: Vector3D) -> None:
+  VALUE_SIZE = 20
+  MARKING_SIZE = 10
+
   cell: Cell = app.board.getCell(index3D)
+  value = cell.get()
+  markings = cell.markings
+
+  # return if nothing to draw
+  if value == None and len(markings) == 0:
+    return
 
   # get cell display position
   cellVertexPos3D = getCellDispVertexPos(app, index3D)
@@ -182,9 +196,10 @@ def drawCell(app, index3D: Vector3D, dispCenter3D: Vector3D) -> None:
   cellCenterPos3D = cellCenterPos3D + dispCenter3D
 
   # draw cell text
-  value = str(cell.get())
   color = 'black' if cell.isLegal else 'red'
-  drawLabel(value, cellCenterPos3D.x, cellCenterPos3D.y, fill=color)
+  dispText = str(value) if value != None else ''
+
+  drawLabel(dispText, cellCenterPos3D.x, cellCenterPos3D.y, fill=color, size=VALUE_SIZE)
 
 # Called by redrawAll() -> drawMainBoard()
 def drawMainBoardCubeOutline(app) -> None:
@@ -285,9 +300,18 @@ def drawMiniBoard(app) -> None:
   DISP_SIZE = app.DIMENSIONS['miniBoardSize']
 
   CELL_SIZE = DISP_SIZE / app.BOARD_SIZE
+  VALUE_SIZE = 20
+  MARKING_SIZE = 10
 
   # draw bounding box
   drawRect(DISP_POS.x, DISP_POS.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
+
+  # draw '#' block cross
+  drawLine(DISP_POS.x + 3*CELL_SIZE.x, DISP_POS.y, DISP_POS.x + 3*CELL_SIZE.x, DISP_POS.y + DISP_SIZE.y)
+  drawLine(DISP_POS.x + 6*CELL_SIZE.x, DISP_POS.y, DISP_POS.x + 6*CELL_SIZE.x, DISP_POS.y + DISP_SIZE.y)
+  drawLine(DISP_POS.x, DISP_POS.y + 3*CELL_SIZE.y, DISP_POS.x + DISP_SIZE.y, DISP_POS.y + 3*CELL_SIZE.y)
+  drawLine(DISP_POS.x, DISP_POS.y + 6*CELL_SIZE.y, DISP_POS.x + DISP_SIZE.y, DISP_POS.y + 6*CELL_SIZE.y)
+
 
   # draw cells
 
@@ -297,9 +321,15 @@ def drawMiniBoard(app) -> None:
     for j in range(app.BOARD_SIZE):
       posX = DISP_POS.x + (i + 0.5) * CELL_SIZE.x
       posY = DISP_POS.y + (j + 0.5) * CELL_SIZE.y
-      cell = miniBoard[j][i]
-      
-      drawLabel(str(cell.get()), posX, posY)
+
+      cell: Cell = miniBoard[j][i]
+      cellValue: int = cell.get()
+      cellMarkings: set[int] = cell.markings
+
+      if cellValue != None and cellValue != 0:
+        drawLabel(str(cellValue), posX, posY, size=VALUE_SIZE)
+      elif app.showMarkings and len(cell.markings) != 0:
+        drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE)
 
 
 # Called by redrawAll()
@@ -360,7 +390,10 @@ def initializeApp(app):
   app.selectedCell = Vector3D(5, 5, 5)
   app.planeDirection = 2    # 0: x, 1: y, 2: z
 
-  app.isFlatView = False
+  app.showPlaneOnly = True  # only displays numbers in selected plane
+  app.showMarkings = True   # shows potential value markings
+
+  app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
   
   # Visual
   app.angleX = 0 # degrees about the y-axis
@@ -392,13 +425,13 @@ def mouseRotateMainBoard(app, currMousePos2D: Vector3D) -> None:
   app.angleY = min(90, max(0, app.angleY))
 
 
-def onAppStart(app):
+def game_onAppStart(app):
   initializeApp(app)
 
-def onMouseMove(app, mouseX, mouseY):
+def game_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
 
-def onMouseDrag(app, mouseX, mouseY):
+def game_onMouseDrag(app, mouseX, mouseY):
 
   # 2D View
   if app.isFlatView:
@@ -410,14 +443,14 @@ def onMouseDrag(app, mouseX, mouseY):
 
   app.mousePos = Vector3D(mouseX, mouseY)
 
-def onKeyPress(app, key):
+def game_onKeyPress(app, key):
   if key in ['v']:
     app.isFlatView = not app.isFlatView
 
 
 # DISPLAY HANDLERS
 
-def redrawAll(app):
+def game_redrawAll(app):
 
   # 2D View
   if app.isFlatView:
@@ -430,6 +463,6 @@ def redrawAll(app):
     drawDebugTooltip(app)
 
 def main():
-  runApp()
+  runAppWithScreens(initialScreen='splash')
 
 main()
