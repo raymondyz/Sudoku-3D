@@ -243,7 +243,7 @@ def drawMainBoardCross(app) -> None:
 
 
 
-# Called by redrawAll()
+# Called by game3D_redrawAll()
 def drawMainBoard(app) -> None:
   DISP_CENTER = app.DIMENSIONS['mainBoardCenter']
   DISP_SIZE = app.DIMENSIONS['mainBoardSize']
@@ -270,7 +270,7 @@ def drawMainBoard(app) -> None:
         if (x, y, z)[app.planeDirection] == app.selectedCell.list(3)[app.planeDirection]:
           drawCell(app, Vector3D(x, y, z), DISP_CENTER)
 
-# Called by redrawAll()
+# Called by game3D_redrawAll()
 def drawCubeButton(app) -> None:
   DISP_CENTER = app.DIMENSIONS['cubeButtonCenter']
   DISP_SIZE = app.DIMENSIONS['cubeButtonSize']
@@ -294,7 +294,7 @@ def drawCubeButton(app) -> None:
 
 
 
-# Called by redrawAll()
+# Called by game2D_redrawAll()
 def drawMiniBoard(app) -> None:
   DISP_POS = app.DIMENSIONS['miniBoardPos']
   DISP_SIZE = app.DIMENSIONS['miniBoardSize']
@@ -302,6 +302,14 @@ def drawMiniBoard(app) -> None:
   CELL_SIZE = DISP_SIZE / app.BOARD_SIZE
   VALUE_SIZE = 20
   MARKING_SIZE = 10
+
+  # draw selection highlight
+  # TODO UGLY CODE, REWRITE
+  planeDirection = app.planeDirection
+  selectedIndex3D: list[int] = app.selectedCell.list(3)
+  selectedIndex: list[int] = selectedIndex3D[:planeDirection] + selectedIndex3D[planeDirection+1:]
+
+  drawRect(DISP_POS.x + CELL_SIZE.x * selectedIndex[0], DISP_POS.y + CELL_SIZE.y * selectedIndex[1], CELL_SIZE.x, CELL_SIZE.y, fill='gold', opacity=50)
 
   # draw bounding box
   drawRect(DISP_POS.x, DISP_POS.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
@@ -332,7 +340,7 @@ def drawMiniBoard(app) -> None:
         drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE)
 
 
-# Called by redrawAll()
+# Called by game3D_redrawAll()
 def drawDebugTooltip(app) -> None:
   DISP_POS = app.DIMENSIONS['debugTooltipPos']
   DISP_SIZE = app.DIMENSIONS['debugTooltipSize']
@@ -393,7 +401,7 @@ def initializeApp(app):
   app.showPlaneOnly = True  # only displays numbers in selected plane
   app.showMarkings = True   # shows potential value markings
 
-  app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
+  # app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
   
   # Visual
   app.angleX = 0 # degrees about the y-axis
@@ -406,7 +414,7 @@ def initializeApp(app):
 
 # EVENT HANDLERS
 
-# Called by onMouseDrag()
+# Called by game3D_onMouseDrag()
 def mouseRotateMainBoard(app, currMousePos2D: Vector3D) -> None:
   DISP_CENTER = app.DIMENSIONS['mainBoardCenter']
   DISP_SIZE = app.DIMENSIONS['mainBoardSize']
@@ -424,43 +432,85 @@ def mouseRotateMainBoard(app, currMousePos2D: Vector3D) -> None:
   app.angleX = min(90, max(0, app.angleX))
   app.angleY = min(90, max(0, app.angleY))
 
+# Called by game2D_onMouseClick()
+# Changes app.selectedCell to clicked cell index
+def clickUpdateSelectedCell2D(app, mousePos: Vector3D) -> None:
+  DISP_POS = app.DIMENSIONS['miniBoardPos']
+  DISP_SIZE = app.DIMENSIONS['miniBoardSize']
+  CELL_SIZE = DISP_SIZE / app.BOARD_SIZE
 
-def game_onAppStart(app):
-  initializeApp(app)
+  # No action if click was outside board
+  if not (DISP_POS.x < mousePos.x < DISP_POS.x + DISP_SIZE.x):
+    return
+  if not (DISP_POS.y < mousePos.y < DISP_POS.y + DISP_SIZE.y):
+    return
+  
+  # Get index in 2D board index coords
+  selectedX = int((mousePos.x - DISP_POS.x) // CELL_SIZE.x)
+  selectedY = int((mousePos.y - DISP_POS.y) // CELL_SIZE.y)
 
-def game_onMouseMove(app, mouseX, mouseY):
+  # Convert 2D board index into 3D index
+  # TODO UGLY CODE, REWRITE BETTER
+  if app.planeDirection == 0:
+    app.selectedCell = Vector3D(app.selectedCell.x, selectedX, selectedY)
+  elif app.planeDirection == 1:
+    app.selectedCell = Vector3D(selectedX, app.selectedCell.y, selectedY)
+  elif app.planeDirection == 2:
+    app.selectedCell = Vector3D(selectedX, selectedY, app.selectedCell.z)
+
+
+# ================================================
+# ==================== game3D ====================
+# ================================================
+
+def game3D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
 
-def game_onMouseDrag(app, mouseX, mouseY):
-
-  # 2D View
-  if app.isFlatView:
-    pass
-
-  # 3D View
-  else:
-    mouseRotateMainBoard(app, Vector3D(mouseX, mouseY))
+def game3D_onMouseDrag(app, mouseX, mouseY):
+  mouseRotateMainBoard(app, Vector3D(mouseX, mouseY))
 
   app.mousePos = Vector3D(mouseX, mouseY)
 
-def game_onKeyPress(app, key):
+def game3D_onKeyPress(app, key):
   if key in ['v']:
-    app.isFlatView = not app.isFlatView
+    app.isFlatView = True
+    setActiveScreen('game2D')
 
 
 # DISPLAY HANDLERS
 
-def game_redrawAll(app):
+def game3D_redrawAll(app):
+  drawMainBoard(app)
+  drawCubeButton(app)
+  drawDebugTooltip(app)
 
-  # 2D View
-  if app.isFlatView:
-    drawMiniBoard(app)
-  
-  # 3D View
-  else:
-    drawMainBoard(app)
-    drawCubeButton(app)
-    drawDebugTooltip(app)
+# ================================================
+# ==================== game2D ====================
+# ================================================
+
+def game2D_onMouseMove(app, mouseX, mouseY):
+  app.mousePos = Vector3D(mouseX, mouseY)
+
+def game2D_onKeyPress(app, key):
+  if key in ['v']:
+    app.isFlatView = False
+    setActiveScreen('game3D')
+
+def game2D_onMousePress(app, mouseX, mouseY):
+  clickUpdateSelectedCell2D(app, Vector3D(mouseX, mouseY))
+
+# DISPLAY HANDLERS
+
+def game2D_redrawAll(app):
+  drawMiniBoard(app)
+
+
+# ==============================================
+# ==================== main ====================
+# ==============================================
+
+def onAppStart(app):
+  initializeApp(app)
 
 def main():
   runAppWithScreens(initialScreen='splash')

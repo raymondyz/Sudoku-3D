@@ -20,4 +20,4 @@ def splash_redrawAll(app):
 
 def splash_onKeyPress(app, key):
   if key == 'p':
-    setActiveScreen('game')
+    setActiveScreen('game3D')
