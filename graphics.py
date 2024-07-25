@@ -22,8 +22,16 @@ class Vector3D:
     self.y: float = y
     self.z: float = z
   
-  def __str__(self):
-    return f'({self.x}, {self.y}, {self.z})'
+  def __repr__(self):
+    return f'Vector3D({self.x}, {self.y}, {self.z})'
+  
+  def __hash__(self):
+    return hash(self.__repr__())
+  
+  def __eq__(self, other):
+    if isinstance(other, Vector3D):
+      return (self.x, self.y, self.z) == (other.x, other.y, other.z)
+    return NotImplemented
   
   def __neg__(self):
     return Vector3D(-self.x, -self.y, -self.z)
