@@ -40,6 +40,7 @@ class Sudoku3D:
           cell = Cell()
           if (i+j+k) % 3 == 0:
             cell = Cell((i+j+k) % 10)
+            cell.isLocked = True
           cell.markings = {i, j, k}
           list1D.append(cell)
         list2D.append(list1D)

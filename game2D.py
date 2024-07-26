@@ -1,5 +1,4 @@
 from cmu_graphics import *
-import math
 
 from graphics import *
 from sudoku import *
@@ -23,12 +22,16 @@ def drawMiniBoard(app) -> None:
   MARKING_SIZE = 10
 
   planeDirection = app.planeDirection
+  miniBoard = app.board.getBoard2D(app.planeDirection, app.selectedCell.list(3)[app.planeDirection])
+  blockSize = int(app.BOARD_SIZE**0.5)
+
+  selectedIndex3D: list[int] = app.selectedCell.list(3)
+  selectedIndex: list[int] = selectedIndex3D[:planeDirection] + selectedIndex3D[planeDirection+1:]
+  selectedCell = miniBoard[selectedIndex[0]][selectedIndex[1]]
 
   # TODO UGLY CODE, REWRITE
   # draw single selection highlight if no multi selection
   if len(app.multiSelected) == 0:
-    selectedIndex3D: list[int] = app.selectedCell.list(3)
-    selectedIndex: list[int] = selectedIndex3D[:planeDirection] + selectedIndex3D[planeDirection+1:]
     drawCellHighlight2D(app, Vector3D(*selectedIndex), 'gold', opacity=50)
 
   # draw multi selection highlight
@@ -51,8 +54,6 @@ def drawMiniBoard(app) -> None:
 
   # draw cells
 
-  miniBoard = app.board.getBoard2D(app.planeDirection, app.selectedCell.list(3)[app.planeDirection])
-
   for i in range(app.BOARD_SIZE):
     for j in range(app.BOARD_SIZE):
       posX = DISP_POS.x + (i + 0.5) * CELL_SIZE.x
@@ -62,10 +63,26 @@ def drawMiniBoard(app) -> None:
       cellValue: int = cell.get()
       cellMarkings: set[int] = cell.markings
 
+      # Draw gray background for locked cells
+      if cell.isLocked:
+        drawCellHighlight2D(app, Vector3D(i, j), 'gray', 10)
+      
+      # Highlight cell orange if in same row or col or block
+      if ((i == selectedIndex[0] or j == selectedIndex[1]
+          or (selectedIndex[0] // blockSize == i // blockSize and selectedIndex[1] // blockSize == j // blockSize))
+          and ([i, j] != selectedIndex)):
+        drawCellHighlight2D(app, Vector3D(i, j), 'orange', 10)
+
+      # Set value text color
+      valueColor = 'black'
+      # Set same number as selected cell to red
+      if cellValue == selectedCell.get() != None:
+        valueColor = 'red'
+      
       if cellValue != None and cellValue != 0:
-        drawLabel(str(cellValue), posX, posY, size=VALUE_SIZE)
+        drawLabel(str(cellValue), posX, posY, size=VALUE_SIZE, fill=valueColor)
       elif app.showMarkings and len(cell.markings) != 0:
-        drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE)
+        drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE, fill=valueColor)
 
 
 
