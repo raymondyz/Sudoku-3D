@@ -79,8 +79,8 @@ def initializeApp(app):
   # app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
   
   # Visual
-  app.angleX = 0 # degrees about the y-axis
-  app.angleY = 0 # degrees about the x-axis
+  app.angleX = 45 # degrees about the y-axis
+  app.angleY = 30 # degrees about the x-axis
 
   # Mouse
   app.mouseSensitivity = 0.15

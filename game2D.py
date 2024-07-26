@@ -3,6 +3,25 @@ from cmu_graphics import *
 from graphics import *
 from sudoku import *
 
+# Convert 3D index to 2D index
+def getIndex2D(app, index3D: Vector3D):
+  if app.planeDirection == 0:
+    return Vector3D(index3D.z, index3D.y)
+  elif app.planeDirection == 1:
+    return Vector3D(index3D.z, index3D.x)
+  elif app.planeDirection == 2:
+    return Vector3D(index3D.x, index3D.y)
+
+# Convert 2D index to 3D index
+def getIndex3D(app, index2D: Vector3D):
+  if app.planeDirection == 0:
+    return Vector3D(app.selectedCell.x, index2D.y, index2D.x)
+  elif app.planeDirection == 1:
+    return Vector3D(index2D.y, app.selectedCell.y, index2D.x)
+  elif app.planeDirection == 2:
+    return Vector3D(index2D.x, index2D.y, app.selectedCell.z)
+
+
 # Draw highlight on cell at index
 def drawCellHighlight2D(app, index2D: Vector3D, color, opacity=100, borderColor=None, borderWidth=1):
   DISP_POS = app.DIMENSIONS['miniBoardPos']
@@ -25,21 +44,20 @@ def drawMiniBoard(app) -> None:
   miniBoard = app.board.getBoard2D(app.planeDirection, app.selectedCell.list(3)[app.planeDirection])
   blockSize = int(app.BOARD_SIZE**0.5)
 
-  selectedIndex3D: list[int] = app.selectedCell.list(3)
-  selectedIndex: list[int] = selectedIndex3D[:planeDirection] + selectedIndex3D[planeDirection+1:]
-  selectedCell = miniBoard[selectedIndex[0]][selectedIndex[1]]
+  selectedIndex = getIndex2D(app, app.selectedCell)
+  selectedCell = miniBoard[selectedIndex.x][selectedIndex.y]
 
-  # TODO UGLY CODE, REWRITE
   # draw single selection highlight if no multi selection
   if len(app.multiSelected) == 0:
-    drawCellHighlight2D(app, Vector3D(*selectedIndex), 'gold', opacity=50)
+    drawCellHighlight2D(app, selectedIndex, 'gold', opacity=50)
 
   # draw multi selection highlight
   else:
     for selection in app.multiSelected:
-      selection3D: list[int] = selection.list(3)
-      selection2D: list[int] = selection3D[:planeDirection] + selection3D[planeDirection+1:]
-      drawCellHighlight2D(app, Vector3D(*selection2D), 'green', opacity=20)
+      selection2D = getIndex2D(app, selection)
+      drawCellHighlight2D(app, selection2D, 'green', opacity=20)
+
+
 
 
   # draw bounding box
@@ -54,32 +72,32 @@ def drawMiniBoard(app) -> None:
 
   # draw cells
 
-  for i in range(app.BOARD_SIZE):
-    for j in range(app.BOARD_SIZE):
-      posX = DISP_POS.x + (i + 0.5) * CELL_SIZE.x
-      posY = DISP_POS.y + (j + 0.5) * CELL_SIZE.y
+  for x in range(app.BOARD_SIZE):
+    for y in range(app.BOARD_SIZE):
+      posX = DISP_POS.x + (x + 0.5) * CELL_SIZE.x
+      posY = DISP_POS.y + (y + 0.5) * CELL_SIZE.y
 
-      cell: Cell = miniBoard[j][i]
+      cell: Cell = miniBoard[x][y]
       cellValue: int = cell.get()
       cellMarkings: set[int] = cell.markings
 
       # Draw gray background for locked cells
       if cell.isLocked:
-        drawCellHighlight2D(app, Vector3D(i, j), 'gray', 10)
+        drawCellHighlight2D(app, Vector3D(x, y), 'gray', 10)
       
       # Highlight cell orange if in same row or col or block
-      if ((i == selectedIndex[0] or j == selectedIndex[1]
-          or (selectedIndex[0] // blockSize == i // blockSize and selectedIndex[1] // blockSize == j // blockSize))
-          and ([i, j] != selectedIndex)):
-        drawCellHighlight2D(app, Vector3D(i, j), 'orange', 10)
+      if ((x == selectedIndex.x or y == selectedIndex.y
+          or (selectedIndex.x // blockSize == x // blockSize and selectedIndex.y // blockSize == y // blockSize))
+          and not (x == selectedIndex.x and y == selectedIndex.y)):
+        drawCellHighlight2D(app, Vector3D(x, y), 'orange', 10)
 
       # Set value text color
       valueColor = 'black'
       # Set same number as selected cell to red
-      if cellValue == selectedCell.get() != None:
+      if cellValue == selectedCell.get() and cellValue != None:
         valueColor = 'red'
       
-      if cellValue != None and cellValue != 0:
+      if cellValue != None:
         drawLabel(str(cellValue), posX, posY, size=VALUE_SIZE, fill=valueColor)
       elif app.showMarkings and len(cell.markings) != 0:
         drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE, fill=valueColor)
@@ -114,13 +132,7 @@ def clickUpdateSelectedCell2D(app, mousePos: Vector3D) -> None:
 
   # Convert 2D board index into 3D index, depending on planeDirection
   # TODO UGLY CODE, REWRITE BETTER
-  selected3D = Vector3D(*app.selectedCell.list(3))
-  if app.planeDirection == 0:
-    selected3D = Vector3D(app.selectedCell.x, selectedX, selectedY)
-  elif app.planeDirection == 1:
-    selected3D = Vector3D(selectedX, app.selectedCell.y, selectedY)
-  elif app.planeDirection == 2:
-    selected3D = Vector3D(selectedX, selectedY, app.selectedCell.z)
+  selected3D = getIndex3D(app, Vector3D(selectedX, selectedY))
 
   # If multi selection, add/remove selected to/from selection list
   if app.multiSelect:
