@@ -24,6 +24,9 @@ class Cell:
   def get(self) -> int:
     return self.value
 
+
+
+
 class Sudoku3D:
   def __init__(self, size: int = 9) -> None:
     self.BOARD_SIZE: int = size
@@ -84,8 +87,51 @@ class Sudoku3D:
   #   print()
   #   print()
   
-  def getIllegalCells(self) -> list[Cell]:
-    # TODO FUTURE IMPLEMENTATION
-    pass
+  def setAllToLegal(self) -> None:
+    for i in range(self.BOARD_SIZE):
+      for j in range(self.BOARD_SIZE):
+        for k in range(self.BOARD_SIZE):
+          self.board[i][j][k].isLegal = True
+
+  def updateIllegalCells(self) -> None:
+    
+    # Set all cells to legal
+    self.setAllToLegal()
+    
+    # Row / Column Check
+    for i in range(self.BOARD_SIZE):
+      for j in range(self.BOARD_SIZE):
+        # Dictionary of the # of appearances for each value
+        seenX = dict()
+        seenY = dict()
+        seenZ = dict()
+
+        for index in range(self.BOARD_SIZE):
+
+          cellX = self.board[index][i][j]
+          cellY = self.board[i][index][j]
+          cellZ = self.board[i][j][index]
+
+          # Add cell values to seen dict
+          if cellX.get() != None:
+            seenX[cellX.get()] = seenX.get(cellX.get(), 0) + 1
+          if cellY.get() != None:
+            seenY[cellY.get()] = seenY.get(cellY.get(), 0) + 1
+          if cellZ.get() != None:
+            seenZ[cellZ.get()] = seenZ.get(cellZ.get(), 0) + 1
+        
+        for index in range(self.BOARD_SIZE):
+          cellX = self.board[index][i][j]
+          cellY = self.board[i][index][j]
+          cellZ = self.board[i][j][index]
+
+          # Set cell illegal if value appears multiple times
+          if seenX.get(cellX.get(), 0) > 1:
+            cellX.isLegal = False
+          if seenY.get(cellY.get(), 0) > 1:
+            cellY.isLegal = False
+          if seenZ.get(cellZ.get(), 0) > 1:
+            cellZ.isLegal = False
+          
 
 

@@ -1,19 +1,22 @@
 '''
 TODO ROADMAP:
+ - Add block checking to find illegal cells
 
  - Move selection with keyboard
- - Check legal
  - Check Solved
 
  - Change plane direction with cube button
 
- - Select with mouse
+ - Select with mouse (3D)
 
 FUTURE:
  - Make small cube clickable
- - 2D backsolver
  - choose between 9x9x9 or 4x4x4
 
+
+ 
+CHANGES:
+ - Improve splashScreen code
 
 
 '''
