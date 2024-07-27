@@ -100,16 +100,36 @@ def drawCell(app, index3D: Vector3D, dispCenter3D: Vector3D) -> None:
 def drawMainBoardCubeOutline(app) -> None:
   DISP_CENTER = app.DIMENSIONS['mainBoardCenter']
 
-  x1, y1 = getCellDispVertexPos(app, Vector3D(0, app.BOARD_SIZE, app.BOARD_SIZE)).list(2)
-  x2, y2 = getCellDispVertexPos(app, Vector3D(0, 0, app.BOARD_SIZE)).list(2)
-  drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
-           x2+DISP_CENTER.x, y2+DISP_CENTER.y)
-  x3, y3 = getCellDispVertexPos(app, Vector3D(0, app.BOARD_SIZE, 0)).list(2)
-  drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
-           x3+DISP_CENTER.x, y3+DISP_CENTER.y)
-  x4, y4 = getCellDispVertexPos(app, Vector3D(app.BOARD_SIZE, app.BOARD_SIZE, app.BOARD_SIZE)).list(2)
-  drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
-           x4+DISP_CENTER.x, y4+DISP_CENTER.y)
+  # x1, y1 = getCellDispVertexPos(app, Vector3D(0, app.BOARD_SIZE, app.BOARD_SIZE)).list(2)
+  # x2, y2 = getCellDispVertexPos(app, Vector3D(0, 0, app.BOARD_SIZE)).list(2)
+  # drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
+  #          x2+DISP_CENTER.x, y2+DISP_CENTER.y)
+  # x3, y3 = getCellDispVertexPos(app, Vector3D(0, app.BOARD_SIZE, 0)).list(2)
+  # drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
+  #          x3+DISP_CENTER.x, y3+DISP_CENTER.y)
+  # x4, y4 = getCellDispVertexPos(app, Vector3D(app.BOARD_SIZE, app.BOARD_SIZE, app.BOARD_SIZE)).list(2)
+  # drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
+  #          x4+DISP_CENTER.x, y4+DISP_CENTER.y)
+  
+  sideLen = 450
+  p1 = Vector3D(sideLen/2, sideLen/2, sideLen/2) + DISP_CENTER
+  p2 = Vector3D(sideLen/2, sideLen/2, -sideLen/2) + DISP_CENTER
+  p3 = Vector3D(sideLen/2, -sideLen/2, sideLen/2) + DISP_CENTER
+  p4 = Vector3D(sideLen/2, -sideLen/2, -sideLen/2) + DISP_CENTER
+  p5 = Vector3D(-sideLen/2, sideLen/2, sideLen/2) + DISP_CENTER
+  p6 = Vector3D(-sideLen/2, sideLen/2, -sideLen/2) + DISP_CENTER
+  p7 = Vector3D(-sideLen/2, -sideLen/2, sideLen/2) + DISP_CENTER
+  p8 = Vector3D(-sideLen/2, -sideLen/2, -sideLen/2) + DISP_CENTER
+
+  drawLine(*getLine3D(app, p1, p2, DISP_CENTER))
+  drawLine(*getLine3D(app, p2, p4, DISP_CENTER))
+  drawLine(*getLine3D(app, p4, p3, DISP_CENTER))
+  drawLine(*getLine3D(app, p3, p1, DISP_CENTER))
+  drawLine(*getLine3D(app, p4, p8, DISP_CENTER))
+  drawLine(*getLine3D(app, p7, p8, DISP_CENTER))
+  drawLine(*getLine3D(app, p7, p3, DISP_CENTER))
+  drawLine(*getLine3D(app, p6, p8, DISP_CENTER))
+  drawLine(*getLine3D(app, p2, p6, DISP_CENTER))
 
 # Called by drawMainBoard()
 # Action: draws '#' cross on selected plane
@@ -144,7 +164,7 @@ def drawMainBoard(app) -> None:
   DISP_SIZE = app.DIMENSIONS['mainBoardSize']
 
   # draw bounding box
-  drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 3)
+  # drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 3)
 
   # draw dot indicating (0,0,0) on board
   x, y = getCellDispVertexPos(app, Vector3D(0, 0, 0)).list(2)
@@ -172,7 +192,7 @@ def drawCubeButton(app) -> None:
   sideLen = DISP_SIZE.x * 0.5
 
   # draw bounding box
-  drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
+  # drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
 
   p1 = Vector3D(sideLen/2, sideLen/2, sideLen/2) + DISP_CENTER
   p2 = Vector3D(sideLen/2, sideLen/2, -sideLen/2) + DISP_CENTER
@@ -194,7 +214,7 @@ def drawDebugTooltip(app) -> None:
   DISP_SIZE = app.DIMENSIONS['debugTooltipSize']
 
   # draw bounding box
-  drawRect(DISP_POS.x, DISP_POS.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
+  # drawRect(DISP_POS.x, DISP_POS.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
 
   drawLabel(f'AngleX: {int(app.angleX)}', DISP_POS.x+10, DISP_POS.y+10, align = 'top-left')
   drawLabel(f'AngleY: {int(app.angleY)}', DISP_POS.x+10, DISP_POS.y+30, align = 'top-left')
@@ -231,6 +251,9 @@ def mouseRotateMainBoard(app, currMousePos2D: Vector3D) -> None:
 def game3D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
 
+def game3D_onMousePress(app, mouseX, mouseY):
+  app.mousePos = Vector3D(mouseX, mouseY)
+
 def game3D_onMouseDrag(app, mouseX, mouseY):
   mouseRotateMainBoard(app, Vector3D(mouseX, mouseY))
 
@@ -238,8 +261,9 @@ def game3D_onMouseDrag(app, mouseX, mouseY):
 
 def game3D_onKeyPress(app, key):
   if key in ['v']:
-    app.isFlatView = True
     setActiveScreen('game2D')
+  if key in ['p']:
+    setActiveScreen('splash')
 
 
 # DISPLAY HANDLERS

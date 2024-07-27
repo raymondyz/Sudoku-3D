@@ -130,8 +130,7 @@ def clickUpdateSelectedCell2D(app, mousePos: Vector3D) -> None:
   selectedX = int((mousePos.x - DISP_POS.x) // CELL_SIZE.x)
   selectedY = int((mousePos.y - DISP_POS.y) // CELL_SIZE.y)
 
-  # Convert 2D board index into 3D index, depending on planeDirection
-  # TODO UGLY CODE, REWRITE BETTER
+  # Get 3D index
   selected3D = getIndex3D(app, Vector3D(selectedX, selectedY))
 
   # If multi selection, add/remove selected to/from selection list
