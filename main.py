@@ -10,14 +10,24 @@ TODO ROADMAP:
  - Select with mouse (3D)
 
 FUTURE:
+ - Add mini cube to game2D that displays current plane pos and orientation
  - Make small cube clickable
  - choose between 9x9x9 or 4x4x4
 
 
  
 CHANGES:
+ - Create general utils class including functions such as:
+    - get 2D index from 3D index and vice versa
+    - get distance
  - Improve splashScreen code
 
+ - Functions that game2D & game3D share:
+    - keyShiftPlane3D
+    - keyMoveSelection3D
+    - enterCellValue2D
+    - getIndex3D
+    - getIndex2D
 
 '''
 
@@ -74,7 +84,7 @@ def initializeApp(app):
   app.selectedCell = Vector3D(5, 5, 5)
   app.multiSelect = False   # Select multiple cells, active when 'shift' is held TODO currently set to 'z'
   app.multiSelected = set()    # Multi-selected cells: list[Vector3D]
-  app.planeDirection = 2    # Normal of selected plane, 0: x, 1: y, 2: z
+  app.planeDirection = 0    # Normal of selected plane, 0: x, 1: y, 2: z
 
   app.showPlaneOnly = True  # only displays numbers in selected plane
   app.showMarkings = True   # shows potential value markings

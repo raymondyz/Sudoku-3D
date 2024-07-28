@@ -123,6 +123,7 @@ class Vector3D:
     cy = axisPos3d.y
     cz = axisPos3d.z
     
+    # Rotation matrix math taken from https://en.wikipedia.org/wiki/Rotation_matrix
     newx = cx + ((x-cx)*1) + ((y-cy)*0) + ((z-cz)*0)
     newy = cy + ((x-cx)*0) + ((y-cy)*math.cos(theta)) + ((z-cz)*-math.sin(theta))
     newz = cz + ((x-cx)*0) + ((y-cy)*math.sin(theta)) + ((z-cz)*math.cos(theta))
@@ -137,6 +138,7 @@ class Vector3D:
     cy = axisPos3d.y
     cz = axisPos3d.z
     
+    # Rotation matrix math taken from https://en.wikipedia.org/wiki/Rotation_matrix
     newx = cx + ((x-cx)*math.cos(theta)) + ((y-cy)*0) + ((z-cz)*math.sin(theta))
     newy = cy + ((x-cx)*0) + ((y-cy)*1) + ((z-cz)*0)
     newz = cz + ((x-cx)*-math.sin(theta)) + ((y-cy)*0) + ((z-cz)*math.cos(theta))
@@ -151,6 +153,7 @@ class Vector3D:
     cy = axisPos3d.y
     cz = axisPos3d.z
     
+    # Rotation matrix math taken from https://en.wikipedia.org/wiki/Rotation_matrix
     newx = cx + ((x-cx)*math.cos(theta)) + ((y-cy)*-math.sin(theta)) + ((z-cz)*0)
     newy = cy + ((x-cx)*math.sin(theta)) + ((y-cy)*math.cos(theta)) + ((z-cz)*0)
     newz = cz + ((x-cx)*0) + ((y-cy)*0) + ((z-cz)*1)

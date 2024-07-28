@@ -3,6 +3,8 @@ from cmu_graphics import *
 from graphics import *
 from sudoku import *
 
+from game3D import keyShiftPlane3D, keyMoveSelection3D
+
 # Convert 3D index to 2D index
 def getIndex2D(app, index3D: Vector3D):
   if app.planeDirection == 0:
@@ -166,28 +168,44 @@ def enterCellValue2D(app, key: str, selectionIndex = None) -> bool:
     return False
   return app.board.set(selectionIndex, int(key))
 
-
+# Enters input value to all multi-selected cells
 def enterMultipleCellValue2D(app, key: str):
   multiSelected = app.multiSelected
   for selection in multiSelected:
     enterCellValue2D(app, key, selection)
-    
 
 # ================================================
 # ==================== game2D ====================
 # ================================================
 
+def game2D_onScreenActivate(app):
+  app.multiSelected.clear()
+  app.multiSelect = False
+
 def game2D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
 
 def game2D_onKeyPress(app, key):
-  if key in ['v']:
-    app.isFlatView = False
-    setActiveScreen('game3D')
+
+  # Shifts plane forward/backward
+  # IMPORTED from game3D
+  keyShiftPlane3D(app, key)
+
+  # Moves selection within plane
+  # IMPORTED from game3D
+  if len(app.multiSelected) == 0:
+    keyMoveSelection3D(app, key)
   
   # Enable multiSelect when 'z' is held
   if key in ['z']:
     app.multiSelect = True
+
+  
+  # TODO TESTING
+  if key in ['v']:
+    app.isFlatView = False
+    setActiveScreen('game3D')
+  
   
   if len(app.multiSelected) == 0:
     enterCellValue2D(app, key)

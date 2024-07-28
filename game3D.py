@@ -166,9 +166,13 @@ def drawMainBoard(app) -> None:
   # draw bounding box
   drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 3)
 
-  # draw dot indicating (0,0,0) on board
+  # TODO TESTING: draw dot indicating (0,0,0) on board
   x, y = getCellDispVertexPos(app, Vector3D(0, 0, 0)).list(2)
   drawCircle(x+DISP_CENTER.x, y+DISP_CENTER.y, 5, fill='blue')
+
+  # TODO TESTING: draw dot at selected cell
+  x, y = getCellDispCenterPos(app, app.selectedCell).list(2)
+  drawCircle(x+DISP_CENTER.x, y+DISP_CENTER.y, 5, fill='green')
 
   # draw board cube outline
   drawMainBoardCubeOutline(app)
@@ -243,10 +247,75 @@ def mouseRotateMainBoard(app, currMousePos2D: Vector3D) -> None:
   app.angleY = min(90, max(0, app.angleY))
 
 
+# Convert 3D index to 2D index
+# TODO, STOLEN FROM game2D, GENERALIZE INTO UTILS CLASS
+def getIndex2D(app, index3D: Vector3D):
+  if app.planeDirection == 0:
+    return Vector3D(index3D.z, index3D.y)
+  elif app.planeDirection == 1:
+    return Vector3D(index3D.z, index3D.x)
+  elif app.planeDirection == 2:
+    return Vector3D(index3D.x, index3D.y)
+
+# Convert 2D index to 3D index
+# TODO, STOLEN FROM game2D, GENERALIZE INTO UTILS CLASS
+def getIndex3D(app, index2D: Vector3D):
+  if app.planeDirection == 0:
+    return Vector3D(app.selectedCell.x, index2D.y, index2D.x)
+  elif app.planeDirection == 1:
+    return Vector3D(index2D.y, app.selectedCell.y, index2D.x)
+  elif app.planeDirection == 2:
+    return Vector3D(index2D.x, index2D.y, app.selectedCell.z)
+
+# Move selected plane
+def keyShiftPlane3D(app, key: str) -> None:
+
+  # Move plane forward
+  if key in ['e']:
+    dIndex = [0, 0, 0]
+    dIndex[app.planeDirection] = 1
+    app.selectedCell += dIndex
+
+  # Move plane backward
+  if key in ['q']:
+    dIndex = [0, 0, 0]
+    dIndex[app.planeDirection] = -1
+    app.selectedCell += dIndex
+  
+  # Wrap plane around if outside board
+  app.selectedCell %= app.BOARD_SIZE
+
+# Move selection within selected plane
+def keyMoveSelection3D(app, key: str) -> None:
+  index2D = getIndex2D(app, app.selectedCell)
+
+  # Move selection up
+  if key in ['w']:
+    app.selectedCell = getIndex3D(app, index2D + (0, -1, 0))
+
+  # Move selection down
+  if key in ['s']:
+    app.selectedCell = getIndex3D(app, index2D + (0, 1, 0))
+
+  # Move selection right
+  if key in ['d']:
+    app.selectedCell = getIndex3D(app, index2D + (1, 0, 0))
+  
+  # Move selection left
+  if key in ['a']:
+    app.selectedCell = getIndex3D(app, index2D + (-1, 0, 0))
+  
+  # Wrap selection around if outside board
+  app.selectedCell %= app.BOARD_SIZE
+
 
 # ================================================
 # ==================== game3D ====================
 # ================================================
+
+def game3D_onScreenActivate(app):
+  app.multiSelected.clear()
+  app.multiSelect = False
 
 def game3D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
@@ -260,6 +329,14 @@ def game3D_onMouseDrag(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
 
 def game3D_onKeyPress(app, key):
+
+  # Shifts plane forward/backward
+  keyShiftPlane3D(app, key)
+
+  # Move selection within plane
+  keyMoveSelection3D(app, key)
+
+
   if key in ['v']:
     setActiveScreen('game2D')
   if key in ['p']:
@@ -268,13 +345,10 @@ def game3D_onKeyPress(app, key):
     app.board.updateIllegalCells()
   
 
-  # TODO TESTING
-  if key in ['up']:
-    app.selectedCell += (1, 1, 1)
-    app.selectedCell %= 9
-  if key in ['down']:
-    app.selectedCell -= (1, 1, 1)
-    app.selectedCell %= 9
+  
+
+  
+
 # DISPLAY HANDLERS
 
 def game3D_redrawAll(app):
