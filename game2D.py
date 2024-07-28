@@ -86,7 +86,11 @@ def drawMiniBoard(app) -> None:
       # Draw gray background for locked cells
       if cell.isLocked:
         drawCellHighlight2D(app, Vector3D(x, y), 'gray', 10)
-      
+
+      # Draw red background for illegal cells
+      if not cell.isLegal:
+        drawCellHighlight2D(app, Vector3D(x, y), 'red', 10)
+
       # Highlight cell orange if in same row or col or block
       if ((x == selectedIndex.x or y == selectedIndex.y
           or (selectedIndex.x // blockSize == x // blockSize and selectedIndex.y // blockSize == y // blockSize))
@@ -205,12 +209,20 @@ def game2D_onKeyPress(app, key):
   if key in ['v']:
     app.isFlatView = False
     setActiveScreen('game3D')
+  if key in ['l']:
+    app.board.updateIllegalCells()
   
-  
+  # Input value into selected cell
   if len(app.multiSelected) == 0:
     enterCellValue2D(app, key)
+    # Update legal states
+    app.board.updateIllegalCells()
+
+  # Input value into multi-selected cells
   else:
     enterMultipleCellValue2D(app, key)
+    # Update legal states
+    app.board.updateIllegalCells()
 
 def game2D_onKeyRelease(app, key):
 

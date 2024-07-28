@@ -1,8 +1,5 @@
 '''
 TODO ROADMAP:
- - Add block checking to find illegal cells
-
- - Move selection with keyboard
  - Check Solved
 
  - Change plane direction with cube button
@@ -28,6 +25,10 @@ CHANGES:
     - enterCellValue2D
     - getIndex3D
     - getIndex2D
+
+    
+USEFUL RESOURCES:
+
 
 '''
 

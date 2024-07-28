@@ -31,6 +31,7 @@ class Sudoku3D:
   def __init__(self, size: int = 9) -> None:
     self.BOARD_SIZE: int = size
     self.board: list[list[list[Cell]]] = self.newBoard(self.BOARD_SIZE)
+    self.updateIllegalCells()
 
   def newBoard(self, size: int) -> list[list[list[Cell]]]:
     list3D = []
@@ -97,8 +98,46 @@ class Sudoku3D:
     
     # Set all cells to legal
     self.setAllToLegal()
+
+    # Block check (3x3x1 blocks)
+    for i in range(0, self.BOARD_SIZE, int(self.BOARD_SIZE**0.5)):
+      for j in range(0, self.BOARD_SIZE, int(self.BOARD_SIZE**0.5)):
+        for layer in range(self.BOARD_SIZE):
+          # Dict of the # of appearances for each value in block
+          seenX = dict()
+          seenY = dict()
+          seenZ = dict()
+
+          for dx in range(int(self.BOARD_SIZE**0.5)):
+            for dy in range(int(self.BOARD_SIZE**0.5)):
+              cellX = self.board[layer][i+dx][j+dy]
+              cellY = self.board[i+dx][layer][j+dy]
+              cellZ = self.board[i+dx][j+dy][layer]
+
+              # Add cell values to seen dict
+              if cellX.get() != None:
+                seenX[cellX.get()] = seenX.get(cellX.get(), 0) + 1
+              if cellY.get() != None:
+                seenY[cellY.get()] = seenY.get(cellY.get(), 0) + 1
+              if cellZ.get() != None:
+                seenZ[cellZ.get()] = seenZ.get(cellZ.get(), 0) + 1
+          
+          for dx in range(int(self.BOARD_SIZE**0.5)):
+            for dy in range(int(self.BOARD_SIZE**0.5)):
+              cellX = self.board[layer][i+dx][j+dy]
+              cellY = self.board[i+dx][layer][j+dy]
+              cellZ = self.board[i+dx][j+dy][layer]
+
+              # Set cell illegal if value appears multiple times
+              if seenX.get(cellX.get(), 0) > 1:
+                cellX.isLegal = False
+              if seenY.get(cellY.get(), 0) > 1:
+                cellY.isLegal = False
+              if seenZ.get(cellZ.get(), 0) > 1:
+                cellZ.isLegal = False
+          
     
-    # Row / Column Check
+    # Row / column Check
     for i in range(self.BOARD_SIZE):
       for j in range(self.BOARD_SIZE):
         # Dictionary of the # of appearances for each value
@@ -106,11 +145,11 @@ class Sudoku3D:
         seenY = dict()
         seenZ = dict()
 
-        for index in range(self.BOARD_SIZE):
+        for layer in range(self.BOARD_SIZE):
 
-          cellX = self.board[index][i][j]
-          cellY = self.board[i][index][j]
-          cellZ = self.board[i][j][index]
+          cellX = self.board[layer][i][j]
+          cellY = self.board[i][layer][j]
+          cellZ = self.board[i][j][layer]
 
           # Add cell values to seen dict
           if cellX.get() != None:
@@ -120,10 +159,10 @@ class Sudoku3D:
           if cellZ.get() != None:
             seenZ[cellZ.get()] = seenZ.get(cellZ.get(), 0) + 1
         
-        for index in range(self.BOARD_SIZE):
-          cellX = self.board[index][i][j]
-          cellY = self.board[i][index][j]
-          cellZ = self.board[i][j][index]
+        for layer in range(self.BOARD_SIZE):
+          cellX = self.board[layer][i][j]
+          cellY = self.board[i][layer][j]
+          cellZ = self.board[i][j][layer]
 
           # Set cell illegal if value appears multiple times
           if seenX.get(cellX.get(), 0) > 1:
