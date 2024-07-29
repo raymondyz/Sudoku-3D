@@ -85,7 +85,7 @@ def initializeApp(app):
   app.selectedCell = Vector3D(5, 5, 5)
   app.multiSelect = False   # Select multiple cells, active when 'shift' is held TODO currently set to 'z'
   app.multiSelected = set()    # Multi-selected cells: list[Vector3D]
-  app.planeDirection = 0    # Normal of selected plane, 0: x, 1: y, 2: z
+  app.planeDirection = 2    # Normal of selected plane, 0: x, 1: y, 2: z
 
   app.showPlaneOnly = True  # only displays numbers in selected plane
   app.showMarkings = True   # shows potential value markings

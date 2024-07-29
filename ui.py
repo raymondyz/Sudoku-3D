@@ -86,7 +86,7 @@ class Button:
     else:
       self.drawDefault()
 
-# btn1 = Button(100, 100, 40, 40, borderRadius=19, borderWidth=0, fill='pink')
+# btn1 = Button(100, 100, 100, 100, borderRadius=20, borderWidth=5, fill='pink')
 
 # def redrawAll(app):
 #   btn1.draw()

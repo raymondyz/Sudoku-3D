@@ -3,6 +3,7 @@ import math
 
 from graphics import *
 from sudoku import *
+from sudokuUtility import isInsideQuad2D
 
 def rotate3D(pos3D: Vector3D, angX: float, angY: float, axisPos3D: Vector3D = Vector3D(0, 0, 0)) -> Vector3D:
   pos3D = pos3D.rotatedY(angY, axisPos3D)
@@ -211,6 +212,37 @@ def drawCubeButton(app) -> None:
   drawPolygon(*getLine3D(app, p3, p4, DISP_CENTER), *getLine3D(app, p8, p7, DISP_CENTER), fill=None, border='black')
   drawPolygon(*getLine3D(app, p8, p6, DISP_CENTER), *getLine3D(app, p2, p4, DISP_CENTER), fill=None, border='black')
 
+  # TODO REWRITE USING CLASS, BAD IMPLEMENTATION
+  if isInsideQuad2D(*getLine3D(app, p1, p2, DISP_CENTER), *getLine3D(app, p4, p3, DISP_CENTER), *app.mousePos.list(2)):
+    drawPolygon(*getLine3D(app, p1, p2, DISP_CENTER), *getLine3D(app, p4, p3, DISP_CENTER), fill='red', border='black')
+
+  elif isInsideQuad2D(*getLine3D(app, p3, p4, DISP_CENTER), *getLine3D(app, p8, p7, DISP_CENTER), *app.mousePos.list(2)):
+    drawPolygon(*getLine3D(app, p3, p4, DISP_CENTER), *getLine3D(app, p8, p7, DISP_CENTER), fill='green', border='black')
+
+  elif isInsideQuad2D(*getLine3D(app, p8, p6, DISP_CENTER), *getLine3D(app, p2, p4, DISP_CENTER), *app.mousePos.list(2)):
+    drawPolygon(*getLine3D(app, p8, p6, DISP_CENTER), *getLine3D(app, p2, p4, DISP_CENTER), fill='blue', border='black')
+
+# TODO REWRITE, lots of repeated code from drawCubeButton(), add to own class
+def mouseUpdateCubeButton(app, mousePos: Vector3D) -> None:
+  DISP_CENTER = app.DIMENSIONS['cubeButtonCenter']
+  DISP_SIZE = app.DIMENSIONS['cubeButtonSize']
+  sideLen = DISP_SIZE.x * 0.5
+
+  p1 = Vector3D(sideLen/2, sideLen/2, sideLen/2) + DISP_CENTER
+  p2 = Vector3D(sideLen/2, sideLen/2, -sideLen/2) + DISP_CENTER
+  p3 = Vector3D(sideLen/2, -sideLen/2, sideLen/2) + DISP_CENTER
+  p4 = Vector3D(sideLen/2, -sideLen/2, -sideLen/2) + DISP_CENTER
+  p5 = Vector3D(-sideLen/2, sideLen/2, sideLen/2) + DISP_CENTER
+  p6 = Vector3D(-sideLen/2, sideLen/2, -sideLen/2) + DISP_CENTER
+  p7 = Vector3D(-sideLen/2, -sideLen/2, sideLen/2) + DISP_CENTER
+  p8 = Vector3D(-sideLen/2, -sideLen/2, -sideLen/2) + DISP_CENTER
+
+  if isInsideQuad2D(*getLine3D(app, p1, p2, DISP_CENTER), *getLine3D(app, p4, p3, DISP_CENTER), *mousePos.list(2)):
+    app.planeDirection = 0
+  elif isInsideQuad2D(*getLine3D(app, p3, p4, DISP_CENTER), *getLine3D(app, p8, p7, DISP_CENTER), *mousePos.list(2)):
+    app.planeDirection = 1
+  elif isInsideQuad2D(*getLine3D(app, p8, p6, DISP_CENTER), *getLine3D(app, p2, p4, DISP_CENTER), *mousePos.list(2)):
+    app.planeDirection = 2
 
 # Called by game3D_redrawAll()
 def drawDebugTooltip(app) -> None:
@@ -322,6 +354,8 @@ def game3D_onMouseMove(app, mouseX, mouseY):
 
 def game3D_onMousePress(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
+
+  mouseUpdateCubeButton(app, app.mousePos)
 
 def game3D_onMouseDrag(app, mouseX, mouseY):
   mouseRotateMainBoard(app, Vector3D(mouseX, mouseY))
