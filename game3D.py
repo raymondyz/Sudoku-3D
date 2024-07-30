@@ -101,16 +101,12 @@ def drawCell(app, index3D: Vector3D, dispCenter3D: Vector3D) -> None:
 def drawMainBoardCubeOutline(app) -> None:
   DISP_CENTER = app.DIMENSIONS['mainBoardCenter']
 
-  # x1, y1 = getCellDispVertexPos(app, Vector3D(0, app.BOARD_SIZE, app.BOARD_SIZE)).list(2)
-  # x2, y2 = getCellDispVertexPos(app, Vector3D(0, 0, app.BOARD_SIZE)).list(2)
-  # drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
-  #          x2+DISP_CENTER.x, y2+DISP_CENTER.y)
-  # x3, y3 = getCellDispVertexPos(app, Vector3D(0, app.BOARD_SIZE, 0)).list(2)
-  # drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
-  #          x3+DISP_CENTER.x, y3+DISP_CENTER.y)
-  # x4, y4 = getCellDispVertexPos(app, Vector3D(app.BOARD_SIZE, app.BOARD_SIZE, app.BOARD_SIZE)).list(2)
-  # drawLine(x1+DISP_CENTER.x, y1+DISP_CENTER.y,
-  #          x4+DISP_CENTER.x, y4+DISP_CENTER.y)
+  color = 'black'
+  if app.isBoardSolved:
+    color = 'green'
+  elif app.hasIllegalCell:
+    color = 'red'
+
   
   sideLen = 450
   p1 = Vector3D(sideLen/2, sideLen/2, sideLen/2) + DISP_CENTER
@@ -122,15 +118,15 @@ def drawMainBoardCubeOutline(app) -> None:
   p7 = Vector3D(-sideLen/2, -sideLen/2, sideLen/2) + DISP_CENTER
   p8 = Vector3D(-sideLen/2, -sideLen/2, -sideLen/2) + DISP_CENTER
 
-  drawLine(*getLine3D(app, p1, p2, DISP_CENTER))
-  drawLine(*getLine3D(app, p2, p4, DISP_CENTER))
-  drawLine(*getLine3D(app, p4, p3, DISP_CENTER))
-  drawLine(*getLine3D(app, p3, p1, DISP_CENTER))
-  drawLine(*getLine3D(app, p4, p8, DISP_CENTER))
-  drawLine(*getLine3D(app, p7, p8, DISP_CENTER))
-  drawLine(*getLine3D(app, p7, p3, DISP_CENTER))
-  drawLine(*getLine3D(app, p6, p8, DISP_CENTER))
-  drawLine(*getLine3D(app, p2, p6, DISP_CENTER))
+  drawLine(*getLine3D(app, p1, p2, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p2, p4, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p4, p3, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p3, p1, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p4, p8, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p7, p8, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p7, p3, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p6, p8, DISP_CENTER), fill=color)
+  drawLine(*getLine3D(app, p2, p6, DISP_CENTER), fill=color)
 
 # Called by drawMainBoard()
 # Action: draws '#' cross on selected plane
@@ -138,6 +134,10 @@ def drawMainBoardCross(app) -> None:
   direction = app.planeDirection
   x, y, z = (app.selectedCell + (0.5, 0.5, 0.5)).list(3)
   color = 'black'
+  if app.isBoardSolved:
+    color = 'green'
+  elif app.hasIllegalCell:
+    color = 'red'
 
   if direction == 0:
     drawLine(*getLineOnBoard(app, Vector3D(x, 0, 3), Vector3D(x, 9, 3)), fill=color)

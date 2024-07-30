@@ -24,6 +24,25 @@ class Cell:
   
   def get(self) -> int:
     return self.value
+  
+  # Returns True if added marking, False if removed marking
+  def toggleMarking(self, marking: int) -> bool:
+
+    # Clear markings if input is None
+    if marking == None:
+      self.markings.clear()
+      return False
+
+    # Remove marking if already has
+    if marking in self.markings:
+      self.markings.remove(marking)
+      return False
+    
+    # Add marking if not already has
+    else:
+      self.markings.add(marking)
+      return True
+
 
 
 
@@ -79,6 +98,28 @@ class Sudoku3D:
     board = json.loads(open(file, 'r').read())
     self.loadBoard(board)
   
+  # Returns True if there is at least 1 illegal cell
+  def checkHasIllegal(self):
+    for i in range(self.BOARD_SIZE):
+      for j in range(self.BOARD_SIZE):
+        for k in range(self.BOARD_SIZE):
+          cell: Cell = self.board[i][j][k]
+
+          if not cell.isLegal:
+            return True
+    return False
+
+  # Return True if board is solved
+  def checkSolved(self) -> bool:
+    for i in range(self.BOARD_SIZE):
+      for j in range(self.BOARD_SIZE):
+        for k in range(self.BOARD_SIZE):
+          cell: Cell = self.board[i][j][k]
+
+          if (not cell.isLegal) or (cell.value == None):
+            return False
+    return True
+
   # TODO don't fall into infinite loop!
   def clearRandomCells(self, amount: int) -> bool:
     removed = 0
@@ -137,17 +178,12 @@ class Sudoku3D:
           list1D.append(self.board[i][j][planeIndex])
       list2D.append(list1D)
     return list2D
-
-  # @staticmethod
-  # def printBoard2D(board2D: list[list[Cell]]):
-  #   for row in range(9):
-  #     for col in range(9):
-  #       value = board2D[row][col].get()
-  #       print(' ' if value == None else value, end='  ')
-  #     print()
-  #   print()
-  #   print()
   
+  # Toggles marking pencil mark of index cell
+  # Returns True if added marking, False if removed marking
+  def toggleMarking(self, index: Vector3D, marking: int) -> bool:
+    return self.board[index.x][index.y][index.z].toggleMarking(marking)
+
   def setAllToLegal(self) -> None:
     for i in range(self.BOARD_SIZE):
       for j in range(self.BOARD_SIZE):
@@ -303,3 +339,13 @@ class Sudoku3D:
           # If cell has a value, update all legals in same group (row/col/block)
           if cell.value != None:
             self.updateGroupLegals(Vector3D(i, j, k), cell.value)
+
+  # @staticmethod
+  # def printBoard2D(board2D: list[list[Cell]]):
+  #   for row in range(9):
+  #     for col in range(9):
+  #       value = board2D[row][col].get()
+  #       print(' ' if value == None else value, end='  ')
+  #     print()
+  #   print()
+  #   print()

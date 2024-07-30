@@ -44,8 +44,14 @@ def stepStartAnimation(app):
   # pass
 
 
+# ==============================================
+# ==================== SPLASH ==================
+# ==============================================
+
+
 def splash_onAppStart(app):
-  pass
+  app.helpButton = Button(1100, 40, 60, 60, borderRadius=15, borderWidth=2)
+  app.settingsButton = Button(1100, 120, 60, 60, borderRadius=15, borderWidth=2)
 
 def splash_onScreenActivate(app):
   app.startButtonSize = 100
@@ -63,24 +69,53 @@ def splash_onStep(app):
     app.angleX = (app.angleX - 1) % 90
 
 def splash_onMouseMove(app, mouseX, mouseY):
-  if not app.runStartAni:
-    if distance(mouseX, mouseY, *app.startButtonPos.list(2)) < 100:
-      app.startButtonSize = 120
-      app.startText = '[            ]'
-    else:
-      app.startButtonSize = 100
-      app.startText = 'S  T  A  R  T'
+  if app.runStartAni:
+    return
+  
+  # Help button
+  app.helpButton.updateHover(mouseX, mouseY)
+  # Settings button
+  app.settingsButton.updateHover(mouseX, mouseY)
+
+  # Start button
+  if distance(mouseX, mouseY, *app.startButtonPos.list(2)) < 100:
+    app.startButtonSize = 120
+    app.startText = '[            ]'
+  else:
+    app.startButtonSize = 100
+    app.startText = 'S  T  A  R  T'
 
 def splash_onMousePress(app, mouseX, mouseY):
-  if (not app.runStartAni) and distance(mouseX, mouseY, *app.startButtonPos.list(2)) < 100:
+  if app.runStartAni:
+    return
+  
+  # Switch to help screen if button clicked
+  if app.helpButton.checkClicked(mouseX, mouseY):
+    setActiveScreen('help')
+    app.helpButton.isHover = False
+  
+  # Switch to settings screen if button clicked
+  if app.settingsButton.checkClicked(mouseX, mouseY):
+    setActiveScreen('settings')
+    app.settingsButton.isHover = False
+  
+  # Run start animation if cube button pressed
+  if distance(mouseX, mouseY, *app.startButtonPos.list(2)) < 100:
     app.runStartAni = True
     app.startButtonSize = 120
 
 def splash_redrawAll(app):
   drawStartButton(app)
   
-  if not app.runStartAni:
-    drawLabel(app.startText, 600, 400, size=64, bold=True, fill='black', border='white', borderWidth = 3)
+  if app.runStartAni:
+    return
+  
+  # Start text
+  drawLabel(app.startText, 600, 400, size=64, bold=True, fill='black', border='white', borderWidth = 3)
+
+  # Screen switch buttons
+  app.helpButton.draw()
+  app.settingsButton.draw()
 
 def splash_onKeyPress(app, key):
   if key == 'p':

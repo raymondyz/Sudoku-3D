@@ -14,20 +14,22 @@ Part 1
     [x] Load from json file
     [x] Create preset boards
 
-  [ ] Game over
-    [ ] Win screen
+  [-] Game over
+    [-] Win screen
+    [x] Board outline color changes depending on game state
     [-] Timer
 
   [ ] Game difficulty
-    [ ] Add more boards
+    [x] Remove cells from solved board to get unsolved board
     [ ] Logic to get correct difficulty board
     [ ] Add frontend UI to select difficulty (settings?)
+    [-] Add more boards
 
 
   [ ] Auto/Manual legals
     [x] Auto legals
-    [ ] Auto update legals when cell change
-    [ ] Manual legal input
+    [x] Auto update legals when cell change
+    [x] Manual legal input
     [x] Proper legals display
     [ ] Switch between manual/auto
 
@@ -82,6 +84,7 @@ from sudoku import *
 
 from splashScreen import *
 from helpScreen import *
+from settingsScreen import *
 from game2D import *
 from game3D import *
 
@@ -109,6 +112,19 @@ def initializeConstants(app):
     'debugTooltipSize': Vector3D(200, 300),
   }
 
+  # Maps 'shift' + 'numkey' to 'numkey'
+  app.SHIFT_KEY_MAP = {
+    '!': '1',
+    '@': '2',
+    '#': '3',
+    '$': '4',
+    '%': '5',
+    '^': '6',
+    '&': '7',
+    '*': '8',
+    '(': '9'
+  }
+
 
 def initializeApp(app):
   # CMU Graphics
@@ -125,6 +141,9 @@ def initializeApp(app):
   app.board = Sudoku3D(size=app.BOARD_SIZE)
   app.board.loadBoardJSON('./resources/boards_3D/solvedBoard.json')
 
+  app.isBoardSolved = app.board.checkSolved() # Whether the board has been correctly solved
+  app.hasIllegalCell = app.board.checkHasIllegal() # Whether the board has an illegal cell
+
   app.selectedCell = Vector3D(5, 5, 5)
   app.multiSelect = False   # Select multiple cells, active when 'shift' is held TODO currently set to 'z'
   app.multiSelected = set()    # Multi-selected cells: list[Vector3D]
@@ -132,7 +151,7 @@ def initializeApp(app):
 
   app.showPlaneOnly = True  # only displays numbers in selected plane
   app.showMarkings = True   # shows potential value markings
-  app.showLegals = True    # shows legals instead of markings
+  app.showLegals = False    # shows legals instead of markings
 
   # app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
   

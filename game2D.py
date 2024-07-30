@@ -60,6 +60,12 @@ def drawMiniBoard(app) -> None:
   selectedIndex = getIndex2D(app, app.selectedCell)
   selectedCell = miniBoard[selectedIndex.x][selectedIndex.y]
 
+  lineColor = 'black'
+  if app.isBoardSolved:
+    lineColor = 'green'
+  elif app.hasIllegalCell:
+    lineColor = 'red'
+
   # draw single selection highlight if no multi selection
   if len(app.multiSelected) == 0:
     drawCellHighlight2D(app, selectedIndex, 'gold', opacity=50)
@@ -72,13 +78,13 @@ def drawMiniBoard(app) -> None:
 
 
   # draw bounding box
-  drawRect(DISP_POS.x, DISP_POS.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
+  drawRect(DISP_POS.x, DISP_POS.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = lineColor, borderWidth = 2)
 
   # draw '#' block cross
-  drawLine(DISP_POS.x + 3*CELL_SIZE.x, DISP_POS.y, DISP_POS.x + 3*CELL_SIZE.x, DISP_POS.y + DISP_SIZE.y)
-  drawLine(DISP_POS.x + 6*CELL_SIZE.x, DISP_POS.y, DISP_POS.x + 6*CELL_SIZE.x, DISP_POS.y + DISP_SIZE.y)
-  drawLine(DISP_POS.x, DISP_POS.y + 3*CELL_SIZE.y, DISP_POS.x + DISP_SIZE.y, DISP_POS.y + 3*CELL_SIZE.y)
-  drawLine(DISP_POS.x, DISP_POS.y + 6*CELL_SIZE.y, DISP_POS.x + DISP_SIZE.y, DISP_POS.y + 6*CELL_SIZE.y)
+  drawLine(DISP_POS.x + 3*CELL_SIZE.x, DISP_POS.y, DISP_POS.x + 3*CELL_SIZE.x, DISP_POS.y + DISP_SIZE.y, fill=lineColor)
+  drawLine(DISP_POS.x + 6*CELL_SIZE.x, DISP_POS.y, DISP_POS.x + 6*CELL_SIZE.x, DISP_POS.y + DISP_SIZE.y, fill=lineColor)
+  drawLine(DISP_POS.x, DISP_POS.y + 3*CELL_SIZE.y, DISP_POS.x + DISP_SIZE.y, DISP_POS.y + 3*CELL_SIZE.y, fill=lineColor)
+  drawLine(DISP_POS.x, DISP_POS.y + 6*CELL_SIZE.y, DISP_POS.x + DISP_SIZE.y, DISP_POS.y + 6*CELL_SIZE.y, fill=lineColor)
 
 
   # draw cells
@@ -194,6 +200,27 @@ def enterMultipleCellValue2D(app, key: str):
   for selection in multiSelected:
     enterCellValue2D(app, key, selection)
 
+# Toggles value in cell markings, clears markings if delete
+def toggleCellMarking2D(app, key: str, selectionIndex = None) -> bool:
+  if selectionIndex == None:
+    selectionIndex: Vector3D = app.selectedCell
+
+  # Clear markings if delete
+  if key in ['delete', 'backspace']:
+    app.board.toggleMarking(selectionIndex, None)
+
+  if not key.isdigit():
+    return False
+  if not 1 <= int(key) <= app.BOARD_SIZE:
+    return False
+  app.board.toggleMarking(selectionIndex, int(key))
+  return True
+
+def toggleMultipleCellMarking2D(app, key: str):
+  multiSelected = app.multiSelected
+  for selection in multiSelected:
+    toggleCellMarking2D(app, key, selection)
+
 # ================================================
 # ==================== game2D ====================
 # ================================================
@@ -206,6 +233,13 @@ def game2D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
 
 def game2D_onKeyPress(app, key):
+  if key in app.SHIFT_KEY_MAP:
+    isShift = True
+    shiftValue = app.SHIFT_KEY_MAP.get(key, key)
+  else:
+    isShift = False
+    shiftValue = key
+  
 
   # Shifts plane forward/backward
   # IMPORTED from game3D
@@ -226,19 +260,28 @@ def game2D_onKeyPress(app, key):
     app.isFlatView = False
     setActiveScreen('game3D')
   if key in ['o']:
-    app.board.clearRandomCells(100)
+    app.board.clearRandomCells(10)
   
   # Input value into selected cell
+  # Edit markings if option is held
   if len(app.multiSelected) == 0:
-    enterCellValue2D(app, key)
-    # Update legal states
-    app.board.updateIllegalCells()
+    if isShift or key in ['delete', 'backspace']:
+      enterCellValue2D(app, shiftValue)
+    else:
+      toggleCellMarking2D(app, key)
 
   # Input value into multi-selected cells
+  # Edit markings if option is held
   else:
-    enterMultipleCellValue2D(app, key)
-    # Update legal states
-    app.board.updateIllegalCells()
+    if isShift or key in ['delete', 'backspace']:
+      enterMultipleCellValue2D(app, shiftValue)
+    else:
+      toggleMultipleCellMarking2D(app, key)
+
+  # Update board/game states
+  app.board.updateIllegalCells()
+  app.isBoardSolved = app.board.checkSolved()
+  app.hasIllegalCell = app.board.checkHasIllegal()
 
 def game2D_onKeyRelease(app, key):
 
