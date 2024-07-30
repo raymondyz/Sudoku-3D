@@ -4,19 +4,25 @@ TODO MVP REQ:
 Part 1
   [ ] Help screen
     [ ] Game rules
-    [ ] Settings
-      [ ] Disable context based highlights
-      [ ] Keybinds
+    [-] Settings
+      [-] Disable context based highlights
+      [-] Keybinds
   
-  [ ] Load board
+  [x] Load board
     [x] Load from 3D list
     [-] Load from txt file
     [x] Load from json file
-    [ ] Create preset boards
+    [x] Create preset boards
 
   [ ] Game over
+    [ ] Win screen
+    [-] Timer
 
   [ ] Game difficulty
+    [ ] Add more boards
+    [ ] Logic to get correct difficulty board
+    [ ] Add frontend UI to select difficulty (settings?)
+
 
   [ ] Auto/Manual legals
     [x] Auto legals
@@ -117,7 +123,7 @@ def initializeApp(app):
   
   # Sudoku Game
   app.board = Sudoku3D(size=app.BOARD_SIZE)
-  app.board.loadBoardJSON('./resources/boards_3D/blankBoard.json')
+  app.board.loadBoardJSON('./resources/boards_3D/solvedBoard.json')
 
   app.selectedCell = Vector3D(5, 5, 5)
   app.multiSelect = False   # Select multiple cells, active when 'shift' is held TODO currently set to 'z'
