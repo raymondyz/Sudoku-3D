@@ -375,8 +375,6 @@ def game3D_onKeyPress(app, key):
     setActiveScreen('game2D')
   if key in ['p']:
     setActiveScreen('splash')
-  if key in ['l']:
-    app.board.updateIllegalCells()
   
 
   

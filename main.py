@@ -132,6 +132,7 @@ def initializeApp(app):
 
   app.showPlaneOnly = True  # only displays numbers in selected plane
   app.showMarkings = True   # shows potential value markings
+  app.showLegals = True    # shows legals instead of markings
 
   # app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
   

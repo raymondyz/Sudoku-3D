@@ -79,21 +79,41 @@ class Sudoku3D:
     board = json.loads(open(file, 'r').read())
     self.loadBoard(board)
   
-  def set(self, index: Vector3D, value: int) -> bool:
+  # TODO don't fall into infinite loop!
+  def clearRandomCells(self, amount: int) -> bool:
+    removed = 0
+    while removed < amount:
+      randomIndex = Vector3D(random.randrange(self.BOARD_SIZE), random.randrange(self.BOARD_SIZE), random.randrange(self.BOARD_SIZE))
+
+      cell: Cell = self.getCell(randomIndex)
+
+      if cell.value != None:
+        cell.value = None
+        cell.isLocked = False
+        removed += 1
+
+    self.updateAllLegals()
+
+  # Tries to set index cell to value, then update legals
+  def set(self, index: Vector3D, value) -> bool:
     cell = self.board[index.x][index.y][index.z]
-    cell.set(value)
-    # TODO ADD LEGALS LOGIC TO ADDING/DELETING/MODIFYING VALUE
+    prevValue = cell.value
 
-    # # Tries to set value
-    # if cell.set(value):
+    # Tries to set value
+    if cell.set(value):
 
-    #   # If setting cell to None, add legals back
-    #   if value == None:
-    #     pass
+      # If setting cell to None, re-evaluate legals
+      # TODO can probably find more efficient method
+      if value == None and prevValue != None:
+        self.updateAllLegals()
 
-    #   # If changing 
-    #   else:
-    #     self.updateGroupLegals(index, value)
+      # If changing cell value, re-evalueate legals
+      elif value != None and prevValue != None:
+        self.updateAllLegals()
+      
+      # If adding cell value, update legals in same group
+      elif value != None and prevValue == None:
+        self.updateGroupLegals(index, value)
   
   def get(self, index: Vector3D) -> int:
     cell = self.board[index.x][index.y][index.z]
@@ -212,6 +232,7 @@ class Sudoku3D:
           if seenZ.get(cellZ.get(), 0) > 1:
             cellZ.isLegal = False
 
+
   # FOR INTERNAL USE
   # Resets all cells to full set of legals
   def resetAllLegals(self) -> None:
@@ -226,6 +247,14 @@ class Sudoku3D:
             cell.legals = set()
           else:
             cell.legals = set(range(1, self.BOARD_SIZE + 1))
+
+  # set the Cell.markings of every cell to its Cell.legals
+  def setAllMarkingsToLegals(self):
+    for i in range(self.BOARD_SIZE):
+      for j in range(self.BOARD_SIZE):
+        for k in range(self.BOARD_SIZE):
+          cell = self.board[i][j][k]
+          cell.markings = set(cell.legals)
 
   # Removes value from all cell legals in same group (row/col/block) as index
   def updateGroupLegals(self, index: Vector3D, value: int) -> None:

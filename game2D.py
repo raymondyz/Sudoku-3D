@@ -90,7 +90,6 @@ def drawMiniBoard(app) -> None:
 
       cell: Cell = miniBoard[x][y]
       cellValue: int = cell.get()
-      cellMarkings: set[int] = cell.legals
 
       # Draw gray background for locked cells
       if cell.isLocked:
@@ -112,11 +111,18 @@ def drawMiniBoard(app) -> None:
       if cellValue == selectedCell.get() and cellValue != None:
         valueColor = 'red'
       
+      # Draw value if value exists
       if cellValue != None:
         drawLabel(str(cellValue), posX, posY, size=VALUE_SIZE, fill=valueColor)
-      elif app.showMarkings and len(cell.legals) != 0:
-        drawMiniBoardLegals(app, posX, posY, cellMarkings)
-        # drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE, fill=valueColor)
+
+      # Draw pencil marks if no value and markings are enabled
+      elif app.showMarkings:
+        # Auto-legal mode, draw auto-legals
+        if app.showLegals and len(cell.legals) != 0:
+          drawMiniBoardLegals(app, posX, posY, cell.legals)
+        # Manual-legal mode, draws user markings
+        elif len(cell.markings) != 0:
+          drawMiniBoardLegals(app, posX, posY, cell.markings)
 
 
 
@@ -219,8 +225,8 @@ def game2D_onKeyPress(app, key):
   if key in ['v']:
     app.isFlatView = False
     setActiveScreen('game3D')
-  if key in ['l']:
-    app.board.updateAllLegals()
+  if key in ['o']:
+    app.board.clearRandomCells(100)
   
   # Input value into selected cell
   if len(app.multiSelected) == 0:
