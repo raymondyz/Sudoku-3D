@@ -19,6 +19,12 @@ Part 1
   [ ] Game difficulty
 
   [ ] Auto/Manual legals
+    [x] Auto legals
+    [ ] Auto update legals when cell change
+    [ ] Manual legal input
+    [x] Proper legals display
+    [ ] Switch between manual/auto
+
 
 Part 2
   [ ] Backtracking solver

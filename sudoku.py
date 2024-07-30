@@ -31,8 +31,11 @@ class Cell:
 class Sudoku3D:
   def __init__(self, size: int = 9) -> None:
     self.BOARD_SIZE: int = size
+    self.BLOCK_SIZE: int = int(self.BOARD_SIZE**0.5)
     self.board: list[list[list[Cell]]] = self.newBoard(self.BOARD_SIZE)
+
     self.updateIllegalCells()
+    self.updateAllLegals()
 
   def newBoard(self, size: int) -> list[list[list[Cell]]]:
     list3D = []
@@ -44,7 +47,7 @@ class Sudoku3D:
           # cell = Cell(100*i + 10*j + k)
           cell = Cell()
           if random.choice([0, 1, 1]) == 0:
-            cell = Cell((i+j+k) % 10)
+            cell = Cell(((i+j+k) % 9) + 1)
             cell.isLocked = True
           cell.markings = {i, j, k}
           list1D.append(cell)
@@ -70,6 +73,7 @@ class Sudoku3D:
           self.board[i][j][k] = cell
     
     self.updateIllegalCells()
+    self.updateAllLegals()
   
   def loadBoardJSON(self, file: str) -> bool:
     board = json.loads(open(file, 'r').read())
@@ -77,7 +81,19 @@ class Sudoku3D:
   
   def set(self, index: Vector3D, value: int) -> bool:
     cell = self.board[index.x][index.y][index.z]
-    return cell.set(value)
+    cell.set(value)
+    # TODO ADD LEGALS LOGIC TO ADDING/DELETING/MODIFYING VALUE
+
+    # # Tries to set value
+    # if cell.set(value):
+
+    #   # If setting cell to None, add legals back
+    #   if value == None:
+    #     pass
+
+    #   # If changing 
+    #   else:
+    #     self.updateGroupLegals(index, value)
   
   def get(self, index: Vector3D) -> int:
     cell = self.board[index.x][index.y][index.z]
@@ -124,16 +140,16 @@ class Sudoku3D:
     self.setAllToLegal()
 
     # Block check (3x3x1 blocks)
-    for i in range(0, self.BOARD_SIZE, int(self.BOARD_SIZE**0.5)):
-      for j in range(0, self.BOARD_SIZE, int(self.BOARD_SIZE**0.5)):
+    for i in range(0, self.BOARD_SIZE, self.BLOCK_SIZE):
+      for j in range(0, self.BOARD_SIZE, self.BLOCK_SIZE):
         for layer in range(self.BOARD_SIZE):
           # Dict of the # of appearances for each value in block
           seenX = dict()
           seenY = dict()
           seenZ = dict()
 
-          for dx in range(int(self.BOARD_SIZE**0.5)):
-            for dy in range(int(self.BOARD_SIZE**0.5)):
+          for dx in range(self.BLOCK_SIZE):
+            for dy in range(self.BLOCK_SIZE):
               cellX = self.board[layer][i+dx][j+dy]
               cellY = self.board[i+dx][layer][j+dy]
               cellZ = self.board[i+dx][j+dy][layer]
@@ -146,8 +162,8 @@ class Sudoku3D:
               if cellZ.get() != None:
                 seenZ[cellZ.get()] = seenZ.get(cellZ.get(), 0) + 1
           
-          for dx in range(int(self.BOARD_SIZE**0.5)):
-            for dy in range(int(self.BOARD_SIZE**0.5)):
+          for dx in range(self.BLOCK_SIZE):
+            for dy in range(self.BLOCK_SIZE):
               cellX = self.board[layer][i+dx][j+dy]
               cellY = self.board[i+dx][layer][j+dy]
               cellZ = self.board[i+dx][j+dy][layer]
@@ -195,6 +211,66 @@ class Sudoku3D:
             cellY.isLegal = False
           if seenZ.get(cellZ.get(), 0) > 1:
             cellZ.isLegal = False
+
+  # FOR INTERNAL USE
+  # Resets all cells to full set of legals
+  def resetAllLegals(self) -> None:
+
+    for i in range(self.BOARD_SIZE):
+      for j in range(self.BOARD_SIZE):
+        for k in range(self.BOARD_SIZE):
+          cell: Cell = self.board[i][j][k]
+
+          # Set unlocked cell legals to all values
+          if cell.isLocked:
+            cell.legals = set()
+          else:
+            cell.legals = set(range(1, self.BOARD_SIZE + 1))
+
+  # Removes value from all cell legals in same group (row/col/block) as index
+  def updateGroupLegals(self, index: Vector3D, value: int) -> None:
+
+    # Removes value from all 9x1x1 columns
+    for layer in range(self.BOARD_SIZE):
+      cellX: Cell = self.board[layer][index.y][index.z]
+      cellY: Cell = self.board[index.x][layer][index.z]
+      cellZ: Cell = self.board[index.x][index.y][layer]
+
+      # Removes value if value in legals
+      if value in cellX.legals:
+        cellX.legals.remove(value)
+      if value in cellY.legals:
+        cellY.legals.remove(value)
+      if value in cellZ.legals:
+        cellZ.legals.remove(value)
+    
+    # Removes value from all 3x3x1 blocks
+    blockVertex = (index // self.BLOCK_SIZE) * self.BLOCK_SIZE  # Rounds to nearest 3rd
+    for i in range(self.BLOCK_SIZE):
+      for j in range(self.BLOCK_SIZE):
+        cellX = self.board[index.x][blockVertex.y + i][blockVertex.z + j]
+        cellY = self.board[blockVertex.x + i][index.y][blockVertex.z + j]
+        cellZ = self.board[blockVertex.x + i][blockVertex.y + j][index.z]
+
+        if value in cellX.legals:
+          cellX.legals.remove(value)
+        if value in cellY.legals:
+          cellY.legals.remove(value)
+        if value in cellZ.legals:
+          cellZ.legals.remove(value)
+
+  
+  def updateAllLegals(self) -> None:
+
+    # Reset all cells to full legals
+    self.resetAllLegals()
+    
+    # Remove illegal values
+    for i in range(self.BOARD_SIZE):
+      for j in range(self.BOARD_SIZE):
+        for k in range(self.BOARD_SIZE):
+          cell = self.board[i][j][k]
           
-
-
+          # If cell has a value, update all legals in same group (row/col/block)
+          if cell.value != None:
+            self.updateGroupLegals(Vector3D(i, j, k), cell.value)

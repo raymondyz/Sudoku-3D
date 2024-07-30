@@ -186,8 +186,8 @@ def drawMainBoard(app) -> None:
     for y in range(app.BOARD_SIZE):
       for z in range(app.BOARD_SIZE):
 
-        # Only draw cell if in plane
-        if (x, y, z)[app.planeDirection] == app.selectedCell.list(3)[app.planeDirection]:
+        # Only draw cell if in plane, unless app.showPlaneOnly == False
+        if (not app.showPlaneOnly) or (x, y, z)[app.planeDirection] == app.selectedCell.list(3)[app.planeDirection]:
           drawCell(app, Vector3D(x, y, z), DISP_CENTER)
 
 # Called by game3D_redrawAll()

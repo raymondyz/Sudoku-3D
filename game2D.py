@@ -32,6 +32,18 @@ def drawCellHighlight2D(app, index2D: Vector3D, color, opacity=100, borderColor=
 
   drawRect(DISP_POS.x + CELL_SIZE.x * index2D.x, DISP_POS.y + CELL_SIZE.y * index2D.y, CELL_SIZE.x, CELL_SIZE.y, fill=color, opacity=opacity, border=borderColor, borderWidth=borderWidth)
 
+# Called by drawMiniBoard()
+# Draws legals pencil markings with proper style
+def drawMiniBoardLegals(app, cx: float, cy: float, markings: set[int]) -> None:
+  MARKING_SIZE = 10
+  DY = 15
+
+  color = 'black'
+  markingStr = str(markings).replace(',','')[1:-1]
+
+  drawLabel(markingStr[:5], cx, cy - DY, size=MARKING_SIZE, fill=color)
+  drawLabel(markingStr[6:11], cx, cy, size=MARKING_SIZE, fill=color)
+  drawLabel(markingStr[12:], cx, cy + DY, size=MARKING_SIZE, fill=color)
 
 # Called by game2D_redrawAll()
 def drawMiniBoard(app) -> None:
@@ -40,7 +52,6 @@ def drawMiniBoard(app) -> None:
 
   CELL_SIZE = DISP_SIZE / app.BOARD_SIZE
   VALUE_SIZE = 20
-  MARKING_SIZE = 10
 
   planeDirection = app.planeDirection
   miniBoard = app.board.getBoard2D(app.planeDirection, app.selectedCell.list(3)[app.planeDirection])
@@ -58,8 +69,6 @@ def drawMiniBoard(app) -> None:
     for selection in app.multiSelected:
       selection2D = getIndex2D(app, selection)
       drawCellHighlight2D(app, selection2D, 'green', opacity=20)
-
-
 
 
   # draw bounding box
@@ -81,7 +90,7 @@ def drawMiniBoard(app) -> None:
 
       cell: Cell = miniBoard[x][y]
       cellValue: int = cell.get()
-      cellMarkings: set[int] = cell.markings
+      cellMarkings: set[int] = cell.legals
 
       # Draw gray background for locked cells
       if cell.isLocked:
@@ -105,8 +114,9 @@ def drawMiniBoard(app) -> None:
       
       if cellValue != None:
         drawLabel(str(cellValue), posX, posY, size=VALUE_SIZE, fill=valueColor)
-      elif app.showMarkings and len(cell.markings) != 0:
-        drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE, fill=valueColor)
+      elif app.showMarkings and len(cell.legals) != 0:
+        drawMiniBoardLegals(app, posX, posY, cellMarkings)
+        # drawLabel(str(cellMarkings).replace(',','')[1:-1], posX, posY, size=MARKING_SIZE, fill=valueColor)
 
 
 
@@ -210,7 +220,7 @@ def game2D_onKeyPress(app, key):
     app.isFlatView = False
     setActiveScreen('game3D')
   if key in ['l']:
-    app.board.updateIllegalCells()
+    app.board.updateAllLegals()
   
   # Input value into selected cell
   if len(app.multiSelected) == 0:
