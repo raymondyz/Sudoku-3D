@@ -85,3 +85,5 @@ def splash_redrawAll(app):
 def splash_onKeyPress(app, key):
   if key == 'p':
     setActiveScreen('game3D')
+  if key == 'h':
+    setActiveScreen('help')

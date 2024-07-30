@@ -1,8 +1,37 @@
 '''
+
+TODO MVP REQ:
+Part 1
+  [ ] Help screen
+    [ ] Game rules
+    [ ] Settings
+      [ ] Disable context based highlights
+      [ ] Keybinds
+  
+  [ ] Load board
+    [x] Load from 3D list
+    [-] Load from txt file
+    [x] Load from json file
+    [ ] Create preset boards
+
+  [ ] Game over
+
+  [ ] Game difficulty
+
+  [ ] Auto/Manual legals
+
+Part 2
+  [ ] Backtracking solver
+    [ ] More efficient 2D solver
+    [ ] Generalize to 3D
+    [ ] Speed up
+
+Part 3
+  [ ] Obvious singles hint
+  [ ] Apply hint
+
 TODO ROADMAP:
  - Check Solved
-
- - Change plane direction with cube button
 
  - Select with mouse (3D)
 
@@ -40,6 +69,7 @@ from graphics import *
 from sudoku import *
 
 from splashScreen import *
+from helpScreen import *
 from game2D import *
 from game3D import *
 
@@ -81,6 +111,7 @@ def initializeApp(app):
   
   # Sudoku Game
   app.board = Sudoku3D(size=app.BOARD_SIZE)
+  app.board.loadBoardJSON('./resources/boards_3D/blankBoard.json')
 
   app.selectedCell = Vector3D(5, 5, 5)
   app.multiSelect = False   # Select multiple cells, active when 'shift' is held TODO currently set to 'z'

@@ -1,5 +1,6 @@
 from graphics import *
 import random
+import json
 
 
 
@@ -50,6 +51,29 @@ class Sudoku3D:
         list2D.append(list1D)
       list3D.append(list2D)
     return list3D
+  
+  def loadBoard(self, board: list[list[list[int]]]) -> bool:
+    size = len(board)
+    if len(board[0]) != size or len(board[0][0]) != size:
+      raise Exception('Invalid board structure')
+    
+    for i in range(size):
+      for j in range(size):
+        for k in range(size):
+          cell = Cell()
+          value = board[i][j][k]
+          
+          if value != None and value > 0:
+            cell.value = value
+            cell.isLocked = True
+
+          self.board[i][j][k] = cell
+    
+    self.updateIllegalCells()
+  
+  def loadBoardJSON(self, file: str) -> bool:
+    board = json.loads(open(file, 'r').read())
+    self.loadBoard(board)
   
   def set(self, index: Vector3D, value: int) -> bool:
     cell = self.board[index.x][index.y][index.z]
