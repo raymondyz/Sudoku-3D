@@ -50,8 +50,8 @@ def stepStartAnimation(app):
 
 
 def splash_onAppStart(app):
-  app.helpButton = Button(1100, 40, 60, 60, borderRadius=15, borderWidth=2)
-  app.settingsButton = Button(1100, 120, 60, 60, borderRadius=15, borderWidth=2)
+  app.helpButton = Button(1100, 40, 60, 60, borderRadius=15, borderWidth=2, text='?')
+  app.settingsButton = Button(1100, 120, 60, 60, borderRadius=15, borderWidth=2, text='%')
 
 def splash_onScreenActivate(app):
   app.startButtonSize = 100

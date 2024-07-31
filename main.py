@@ -2,8 +2,8 @@
 
 TODO MVP REQ:
 Part 1
-  [ ] Help screen
-    [ ] Game rules
+  [-] Help screen
+    [x] Game rules
     [-] Settings
       [-] Disable context based highlights
       [-] Keybinds
@@ -19,19 +19,19 @@ Part 1
     [x] Board outline color changes depending on game state
     [-] Timer
 
-  [ ] Game difficulty
+  [x] Game difficulty
     [x] Remove cells from solved board to get unsolved board
-    [ ] Logic to get correct difficulty board
-    [ ] Add frontend UI to select difficulty (settings?)
+    [x] Logic to get correct difficulty board
+    [-] Add frontend UI to select difficulty (settings?)
     [-] Add more boards
 
 
-  [ ] Auto/Manual legals
+  [x] Auto/Manual legals
     [x] Auto legals
     [x] Auto update legals when cell change
     [x] Manual legal input
     [x] Proper legals display
-    [ ] Switch between manual/auto
+    [x] Switch between manual/auto
 
 
 Part 2
@@ -89,7 +89,11 @@ from game2D import *
 from game3D import *
 
 
-
+def getNewBoard(app, difficulty: int) -> Sudoku3D:
+  newBoard = Sudoku3D(size=app.BOARD_SIZE)
+  newBoard.loadBoardJSON('./resources/boards_3D/solvedBoard.json')
+  newBoard.clearRandomCells(min(app.BOARD_SIZE**3, 50+difficulty*100))
+  return newBoard
 
 
 def initializeConstants(app):
@@ -138,20 +142,20 @@ def initializeApp(app):
   app.page = 'game'  # start, game, settings
   
   # Sudoku Game
-  app.board = Sudoku3D(size=app.BOARD_SIZE)
-  app.board.loadBoardJSON('./resources/boards_3D/solvedBoard.json')
+  # app.board = Sudoku3D(size=app.BOARD_SIZE)
+  app.board = getNewBoard(app, 5)
 
   app.isBoardSolved = app.board.checkSolved() # Whether the board has been correctly solved
   app.hasIllegalCell = app.board.checkHasIllegal() # Whether the board has an illegal cell
 
   app.selectedCell = Vector3D(5, 5, 5)
   app.multiSelect = False   # Select multiple cells, active when 'shift' is held TODO currently set to 'z'
-  app.multiSelected = set()    # Multi-selected cells: list[Vector3D]
+  app.multiSelected = set() # Multi-selected cells: list[Vector3D]
   app.planeDirection = 2    # Normal of selected plane, 0: x, 1: y, 2: z
 
   app.showPlaneOnly = True  # only displays numbers in selected plane
   app.showMarkings = True   # shows potential value markings
-  app.showLegals = False    # shows legals instead of markings
+  app.showLegals = True    # shows legals instead of markings
 
   # app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
   

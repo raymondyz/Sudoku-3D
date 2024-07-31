@@ -165,7 +165,7 @@ def drawMainBoard(app) -> None:
   DISP_SIZE = app.DIMENSIONS['mainBoardSize']
 
   # draw bounding box
-  drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 3)
+  # drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 3)
 
   # TODO TESTING: draw dot indicating (0,0,0) on board
   x, y = getCellDispVertexPos(app, Vector3D(0, 0, 0)).list(2)
@@ -197,7 +197,7 @@ def drawCubeButton(app) -> None:
   sideLen = DISP_SIZE.x * 0.5
 
   # draw bounding box
-  drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
+  # drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 1)
 
   p1 = Vector3D(sideLen/2, sideLen/2, sideLen/2) + DISP_CENTER
   p2 = Vector3D(sideLen/2, sideLen/2, -sideLen/2) + DISP_CENTER
@@ -386,4 +386,4 @@ def game3D_onKeyPress(app, key):
 def game3D_redrawAll(app):
   drawMainBoard(app)
   drawCubeButton(app)
-  drawDebugTooltip(app)
+  # drawDebugTooltip(app)

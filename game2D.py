@@ -1,6 +1,7 @@
 from cmu_graphics import *
 
 from graphics import *
+from ui import *
 from sudoku import *
 
 from game3D import keyShiftPlane3D, keyMoveSelection3D
@@ -229,8 +230,11 @@ def game2D_onScreenActivate(app):
   app.multiSelected.clear()
   app.multiSelect = False
 
+  app.toggleLegals = Button(1000, 50, 180, 50, borderWidth=2, borderRadius=5, border='black', text='Show Legals')
+
 def game2D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
+  app.toggleLegals.updateHover(mouseX, mouseY)
 
 def game2D_onKeyPress(app, key):
   if key in app.SHIFT_KEY_MAP:
@@ -238,8 +242,7 @@ def game2D_onKeyPress(app, key):
     shiftValue = app.SHIFT_KEY_MAP.get(key, key)
   else:
     isShift = False
-    shiftValue = key
-  
+    shiftValue = key  
 
   # Shifts plane forward/backward
   # IMPORTED from game3D
@@ -253,7 +256,6 @@ def game2D_onKeyPress(app, key):
   # Enable multiSelect when 'z' is held
   if key in ['z']:
     app.multiSelect = True
-
   
   # TODO TESTING
   if key in ['v']:
@@ -290,11 +292,18 @@ def game2D_onKeyRelease(app, key):
     app.multiSelect = False
 
 def game2D_onMousePress(app, mouseX, mouseY):
+  app.toggleLegals.updateActive(mouseX, mouseY, True)
+  if app.toggleLegals.checkClicked(mouseX, mouseY):
+    app.showLegals = not app.showLegals
 
   clickUpdateSelectedCell2D(app, Vector3D(mouseX, mouseY))
+
+def game2D_onMouseRelease(app, mouseX, mouseY):
+  app.toggleLegals.updateActive(mouseX, mouseY, False)
 
 # DISPLAY HANDLERS
 
 def game2D_redrawAll(app):
   drawMiniBoard(app)
+  app.toggleLegals.draw()
 
