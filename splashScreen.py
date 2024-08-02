@@ -5,11 +5,6 @@ from game3D import *
 
 import string
 
-# TODO PROTOTYPE, FIX CODE LATER
-# TODO PROTOTYPE, FIX CODE LATER
-# TODO PROTOTYPE, FIX CODE LATER
-
-
 
 def drawStartButton(app):
   DISP_CENTER = app.startButtonPos

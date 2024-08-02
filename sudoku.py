@@ -120,10 +120,10 @@ class Sudoku3D:
             return False
     return True
 
-  # TODO don't fall into infinite loop!
   def clearRandomCells(self, amount: int) -> bool:
     removed = 0
-    while removed < amount:
+    i = 0
+    while removed < amount and i < 10000:
       randomIndex = Vector3D(random.randrange(self.BOARD_SIZE), random.randrange(self.BOARD_SIZE), random.randrange(self.BOARD_SIZE))
 
       cell: Cell = self.getCell(randomIndex)
@@ -132,6 +132,7 @@ class Sudoku3D:
         cell.value = None
         cell.isLocked = False
         removed += 1
+      i += 1
 
     self.updateAllLegals()
 
@@ -144,7 +145,6 @@ class Sudoku3D:
     if cell.set(value):
 
       # If setting cell to None, re-evaluate legals
-      # TODO can probably find more efficient method
       if value == None and prevValue != None:
         self.updateAllLegals()
 

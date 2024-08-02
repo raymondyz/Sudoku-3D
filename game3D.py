@@ -68,8 +68,6 @@ def getLineOnBoard(app, index1: Vector3D, index2: Vector3D):
 
 
 
-# TODO WORK IN PROGRESS
-# TODO WORK IN PROGRESS
 def drawCellValue(app, cellCenterDisp3D: Vector3D, value: str = '') -> None:
   drawLabel(value, cellCenterDisp3D.x, cellCenterDisp3D.y)
 
@@ -168,11 +166,11 @@ def drawMainBoard(app) -> None:
   # draw bounding box
   drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'black', borderWidth = 3)
 
-  # TODO TESTING: draw dot indicating (0,0,0) on board
+  # draw dot indicating (0,0,0) on board
   x, y = getCellDispVertexPos(app, Vector3D(0, 0, 0)).list(2)
   drawCircle(x+DISP_CENTER.x, y+DISP_CENTER.y, 5, fill='blue')
 
-  # TODO TESTING: draw dot at selected cell
+  # draw dot at selected cell
   x, y = getCellDispCenterPos(app, app.selectedCell).list(2)
   drawCircle(x+DISP_CENTER.x, y+DISP_CENTER.y, 5, fill='green')
 
@@ -213,7 +211,6 @@ def drawCubeButton(app) -> None:
   drawPolygon(*getLine3D(app, p3, p4, DISP_CENTER), *getLine3D(app, p8, p7, DISP_CENTER), fill=None, border='black')
   drawPolygon(*getLine3D(app, p8, p6, DISP_CENTER), *getLine3D(app, p2, p4, DISP_CENTER), fill=None, border='black')
 
-  # TODO REWRITE USING CLASS, BAD IMPLEMENTATION
   if isInsideQuad2D(*getLine3D(app, p1, p2, DISP_CENTER), *getLine3D(app, p4, p3, DISP_CENTER), *app.mousePos.list(2)):
     drawPolygon(*getLine3D(app, p1, p2, DISP_CENTER), *getLine3D(app, p4, p3, DISP_CENTER), fill='red', border='black')
 
@@ -223,7 +220,6 @@ def drawCubeButton(app) -> None:
   elif isInsideQuad2D(*getLine3D(app, p8, p6, DISP_CENTER), *getLine3D(app, p2, p4, DISP_CENTER), *app.mousePos.list(2)):
     drawPolygon(*getLine3D(app, p8, p6, DISP_CENTER), *getLine3D(app, p2, p4, DISP_CENTER), fill='blue', border='black')
 
-# TODO REWRITE, lots of repeated code from drawCubeButton(), add to own class
 def mouseUpdateCubeButton(app, mousePos: Vector3D) -> None:
   DISP_CENTER = app.DIMENSIONS['cubeButtonCenter']
   DISP_SIZE = app.DIMENSIONS['cubeButtonSize']
@@ -281,7 +277,6 @@ def mouseRotateMainBoard(app, currMousePos2D: Vector3D) -> None:
 
 
 # Convert 3D index to 2D index
-# TODO, STOLEN FROM game2D, GENERALIZE INTO UTILS CLASS
 def getIndex2D(app, index3D: Vector3D):
   if app.planeDirection == 0:
     return Vector3D(index3D.z, index3D.y)
@@ -291,7 +286,6 @@ def getIndex2D(app, index3D: Vector3D):
     return Vector3D(index3D.x, index3D.y)
 
 # Convert 2D index to 3D index
-# TODO, STOLEN FROM game2D, GENERALIZE INTO UTILS CLASS
 def getIndex3D(app, index2D: Vector3D):
   if app.planeDirection == 0:
     return Vector3D(app.selectedCell.x, index2D.y, index2D.x)

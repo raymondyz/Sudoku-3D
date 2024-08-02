@@ -1,82 +1,3 @@
-'''
-
-TODO MVP REQ:
-Part 1
-  [-] Help screen
-    [x] Game rules
-    [-] Settings
-      [-] Disable context based highlights
-      [-] Keybinds
-  
-  [x] Load board
-    [x] Load from 3D list
-    [-] Load from txt file
-    [x] Load from json file
-    [x] Create preset boards
-
-  [-] Game over
-    [-] Win screen
-    [x] Board outline color changes depending on game state
-    [-] Timer
-
-  [x] Game difficulty
-    [x] Remove cells from solved board to get unsolved board
-    [x] Logic to get correct difficulty board
-    [-] Add frontend UI to select difficulty (settings?)
-    [-] Add more boards
-
-
-  [x] Auto/Manual legals
-    [x] Auto legals
-    [x] Auto update legals when cell change
-    [x] Manual legal input
-    [x] Proper legals display
-    [x] Switch between manual/auto
-
-
-Part 2
-  [ ] Backtracking solver
-    [ ] More efficient 2D solver
-    [ ] Generalize to 3D
-    [ ] Speed up
-
-Part 3
-  [ ] Obvious singles hint
-  [ ] Apply hint
-
-TODO ROADMAP:
- - Check Solved
-
- - Select with mouse (3D)
-
-FUTURE:
- - Add mini cube to game2D that displays current plane pos and orientation
- - Make small cube clickable
- - choose between 9x9x9 or 4x4x4
-
-
- 
-CHANGES:
- - Create general utils class including functions such as:
-    - get 2D index from 3D index and vice versa
-    - get distance
- - Improve splashScreen code
-
- - Functions that game2D & game3D share:
-    - keyShiftPlane3D
-    - keyMoveSelection3D
-    - enterCellValue2D
-    - getIndex3D
-    - getIndex2D
-
-    
-USEFUL RESOURCES:
-
-
-'''
-
-
-
 from cmu_graphics import *
 
 from graphics import *
@@ -155,7 +76,7 @@ def initializeApp(app):
 
   app.showPlaneOnly = True  # only displays numbers in selected plane
   app.showMarkings = True   # shows potential value markings
-  app.showLegals = True    # shows legals instead of markings
+  app.showLegals = False    # shows legals instead of markings
 
   # app.isFlatView = False    # currently in flat mode, or rotateable 3D mode
   
