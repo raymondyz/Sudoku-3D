@@ -3,6 +3,7 @@ import math
 
 from graphics import *
 from sudoku import *
+from ui import *
 from sudokuUtility import isInsideQuad2D
 
 def rotate3D(pos3D: Vector3D, angX: float, angY: float, axisPos3D: Vector3D = Vector3D(0, 0, 0)) -> Vector3D:
@@ -165,7 +166,7 @@ def drawMainBoard(app) -> None:
   DISP_SIZE = app.DIMENSIONS['mainBoardSize']
 
   # draw bounding box
-  # drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'red', borderWidth = 3)
+  drawRect(DISP_CENTER.x-0.5*DISP_SIZE.x, DISP_CENTER.y-0.5*DISP_SIZE.y, DISP_SIZE.x, DISP_SIZE.y, fill=None, border = 'black', borderWidth = 3)
 
   # TODO TESTING: draw dot indicating (0,0,0) on board
   x, y = getCellDispVertexPos(app, Vector3D(0, 0, 0)).list(2)
@@ -345,17 +346,36 @@ def keyMoveSelection3D(app, key: str) -> None:
 # ==================== game3D ====================
 # ================================================
 
+def game3D_onAppStart(app):
+  app.splashBtn = Button(1100, 40, 60, 60,  border='black', fill='white', borderRadius=5, borderWidth=2, text=">")
+  app.switchViewBtn = Button(1000, 40, 60, 60,  border='black', fill='white', borderRadius=5, borderWidth=2, text="2D")
+
 def game3D_onScreenActivate(app):
   app.multiSelected.clear()
   app.multiSelect = False
+  app.switchViewBtn.text = '2D'
 
 def game3D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
+  app.splashBtn.updateHover(mouseX, mouseY)
+  app.switchViewBtn.updateHover(mouseX, mouseY)
+
 
 def game3D_onMousePress(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
+  app.splashBtn.updateActive(mouseX, mouseY, True)
+  if app.splashBtn.checkClicked(mouseX, mouseY):
+    setActiveScreen('splash')
+  app.switchViewBtn.updateActive(mouseX, mouseY, True)
+  if app.switchViewBtn.checkClicked(mouseX, mouseY):
+    setActiveScreen('game2D')
 
   mouseUpdateCubeButton(app, app.mousePos)
+
+def game3D_onMouseRelease(app, mouseX, mouseY):
+  app.splashBtn.updateActive(mouseX, mouseY, False)
+  app.switchViewBtn.updateActive(mouseX, mouseY, False)
+
 
 def game3D_onMouseDrag(app, mouseX, mouseY):
   mouseRotateMainBoard(app, Vector3D(mouseX, mouseY))
@@ -375,6 +395,12 @@ def game3D_onKeyPress(app, key):
     setActiveScreen('game2D')
   if key in ['p']:
     setActiveScreen('splash')
+  if key in ['o']:
+    app.board = Sudoku3D(size=app.BOARD_SIZE)
+    app.board.loadBoardJSON('./resources/boards_3D/solvedBoard.json')
+    app.board.clearRandomCells(1)
+  if key in ['l']:
+    app.board.clearRandomCells(10)
   
 
   
@@ -387,3 +413,5 @@ def game3D_redrawAll(app):
   drawMainBoard(app)
   drawCubeButton(app)
   # drawDebugTooltip(app)
+  app.splashBtn.draw()
+  app.switchViewBtn.draw()

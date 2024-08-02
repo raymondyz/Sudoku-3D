@@ -19,10 +19,16 @@ def settings_redrawAll(app):
   app.newBoardBtn.draw()
 
   app.diffSlider.draw()
+  app.splashBtn.draw()
 
 def settings_onMousePress(app, mouseX, mouseY):
   app.diffSlider.mousePress(mouseX, mouseY)
   app.newBoardBtn.updateActive(mouseX, mouseY, True)
+
+  app.splashBtn.updateActive(mouseX, mouseY, True)
+  if app.splashBtn.checkClicked(mouseX, mouseY):
+    setActiveScreen('splash')
+
 
   if app.newBoardBtn.checkClicked(mouseX, mouseY):
     app.board = getNewBoard(app, app.difficulty)
@@ -31,10 +37,13 @@ def settings_onMousePress(app, mouseX, mouseY):
 def settings_onMouseRelease(app, mouseX, mouseY):
   app.diffSlider.mouseRelease()
   app.newBoardBtn.updateActive(mouseX, mouseY, False)
+  app.splashBtn.updateActive(mouseX, mouseY, False)
 
 def settings_onMouseMove(app, mouseX, mouseY):
   app.diffSlider.mouseMove(mouseX, mouseY)
   app.newBoardBtn.updateHover(mouseX, mouseY)
+  app.splashBtn.updateHover(mouseX, mouseY)
+
 
 def settings_onMouseDrag(app, mouseX, mouseY):
   app.diffSlider.mouseDrag(mouseX, mouseY)
@@ -43,3 +52,4 @@ def settings_onMouseDrag(app, mouseX, mouseY):
 def settings_onKeyPress(app, key):
   if key in ['escape', 'esc']:
     setActiveScreen('splash')
+

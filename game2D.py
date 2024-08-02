@@ -230,11 +230,16 @@ def game2D_onScreenActivate(app):
   app.multiSelected.clear()
   app.multiSelect = False
 
-  app.toggleLegals = Button(1000, 50, 180, 50, borderWidth=2, borderRadius=5, border='black', text='Show Legals')
+  app.toggleLegals = Button(1000, 130, 180, 50, borderWidth=2, borderRadius=5, border='black', text='Show Legals')
+
+  app.switchViewBtn.text = '3D'
 
 def game2D_onMouseMove(app, mouseX, mouseY):
   app.mousePos = Vector3D(mouseX, mouseY)
   app.toggleLegals.updateHover(mouseX, mouseY)
+
+  app.splashBtn.updateHover(mouseX, mouseY)
+  app.switchViewBtn.updateHover(mouseX, mouseY)
 
 def game2D_onKeyPress(app, key):
   if key in app.SHIFT_KEY_MAP:
@@ -262,6 +267,10 @@ def game2D_onKeyPress(app, key):
     app.isFlatView = False
     setActiveScreen('game3D')
   if key in ['o']:
+    app.board = Sudoku3D(size=app.BOARD_SIZE)
+    app.board.loadBoardJSON('./resources/boards_3D/solvedBoard.json')
+    app.board.clearRandomCells(1)
+  if key in ['l']:
     app.board.clearRandomCells(10)
   
   # Input value into selected cell
@@ -295,15 +304,27 @@ def game2D_onMousePress(app, mouseX, mouseY):
   app.toggleLegals.updateActive(mouseX, mouseY, True)
   if app.toggleLegals.checkClicked(mouseX, mouseY):
     app.showLegals = not app.showLegals
+  
+  app.splashBtn.updateActive(mouseX, mouseY, True)
+  if app.splashBtn.checkClicked(mouseX, mouseY):
+    setActiveScreen('splash')
+  app.switchViewBtn.updateActive(mouseX, mouseY, True)
+  if app.switchViewBtn.checkClicked(mouseX, mouseY):
+    setActiveScreen('game3D')
 
   clickUpdateSelectedCell2D(app, Vector3D(mouseX, mouseY))
 
 def game2D_onMouseRelease(app, mouseX, mouseY):
   app.toggleLegals.updateActive(mouseX, mouseY, False)
+  app.splashBtn.updateActive(mouseX, mouseY, False)
+  app.switchViewBtn.updateActive(mouseX, mouseY, False)
+
 
 # DISPLAY HANDLERS
 
 def game2D_redrawAll(app):
   drawMiniBoard(app)
   app.toggleLegals.draw()
+  app.splashBtn.draw()
+  app.switchViewBtn.draw()
 
